@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="auto">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>North Chrome v2 — Bodega</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- ===== CSS Base y Estructura ===== -->
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/modules.css">
+<link rel="stylesheet" href="settings-styles.css">
+
+<!-- ===== CSS de Temas (Oscuro/Claro) ===== -->
+<link rel="stylesheet" href="css/theme-dark.css">
+<link rel="stylesheet" href="css/theme-light.css">
+
+<!-- ===== CSS de Iconos (Sistema Centralizado) ===== -->
+<link rel="stylesheet" href="css/icons.css">
+
+<link rel="stylesheet" href="css/mantenimiento.css">
+<!-- ===== Script de Inicialización de Tema (Evita FOUC) ===== -->
+<script>
+  // Establece el tema inicial ANTES de que se renderice el contenido
+  (function() {
+    try {
+      const saved = localStorage.getItem('nc_settings');
+      const settings = saved ? JSON.parse(saved) : {};
+      const scheme = settings.colorScheme || 'auto';
+      
+      let theme = scheme;
+      if (scheme === 'auto') {
+        theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      
+      document.documentElement.setAttribute('data-theme', theme);
+    } catch (e) {
+      // Fallback a oscuro en caso de error
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  })();
+</script>
+</head>
+<body>
+<div id="auth-lock-screen" class="auth-lock-screen" aria-live="polite" style="display:none">
+  <div class="auth-lock-card">
+    <div class="auth-lock-brand">
+      <img src="assets/logo-northchrome.png" alt="North Chrome" class="auth-lock-logo" onerror="this.style.display='none'">
+      <div>
+        <div class="auth-lock-title">North Chrome v2</div>
+        <div class="auth-lock-subtitle">Control de Bodega, Pañol y Sellos CNC</div>
+      </div>
+    </div>
+    <div class="auth-lock-features">
+      <span>Inventario</span>
+      <span>Pañol</span>
+      <span>Sellos</span>
+      <span>Auditorías</span>
+    </div>
+    <div class="auth-lock-form">
+      <div class="fg"><label class="fl">Usuario</label><input type="text" class="fi" id="login-username" placeholder="admin"></div>
+      <div class="fg"><label class="fl">Contraseña</label><input type="password" class="fi" id="login-password" placeholder="••••••"></div>
+      <div id="login-msg" class="auth-lock-msg">Usuarios iniciales: admin/admin · operador_cnc_sellos/cnc123</div>
+      <button class="btn bg auth-lock-btn" onclick="submitLoginModal()">Iniciar sesión</button>
+    </div>
+  </div>
+</div>
+
+<aside class="sidebar" id="sidebar" aria-label="Navegacion principal">
+  <div class="s-hdr"><div class="s-logo"><img src="assets/logo-northchrome.png" alt="North Chrome" class="brand-logo" onerror="this.style.display='none'"><span class="s-logo-text">North Chrome</span></div><div class="s-sub">Gestión de Bodega v2</div></div>
+  <nav class="s-nav" aria-label="Modulos">
+    <div class="nl">Principal</div>
+    <div class="ni on" data-p="dashboard" onclick="go('dashboard')"><svg class="icon icon-stroke nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><title>Dashboard</title><path d="M12 7.01L12.01 6.99889"/><path d="M16 9.01L16.01 8.99889"/><path d="M8 9.01L8.01 8.99889"/><path d="M18 13.01L18.01 12.9989"/><path d="M6 13.01L6.01 12.9989"/><path d="M17 17.01L17.01 16.9989"/><path d="M7 17.01L7.01 16.9989"/><path d="M12 17L13 11"/><path d="M8.5 20.001H4C2.74418 18.3295 2 16.2516 2 14C2 8.47715 6.47715 4 12 4C17.5228 4 22 8.47715 22 14C22 16.2516 21.2558 18.3295 20 20.001L15.5 20"/><path d="M12 23C13.6569 23 15 21.6569 15 20C15 18.3431 13.6569 17 12 17C10.3431 17 9 18.3431 9 20C9 21.6569 10.3431 23 12 23Z"/></svg>Dashboard</div>
+
+    <div class="nl">Inventario</div>
+    <div class="ni" data-p="inventario" onclick="go('inventario')"><svg class="icon icon-stroke nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><title>Inventario</title><path d="M3 21v-13l9 -4l9 4v13"/><path d="M13 13h4v8h-10v-6h6"/><path d="M13 21v-9a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v3"/></svg>Inventario<span class="nbg" id="badge-c" style="display:none">0</span></div>
+    <div class="ni" data-p="componentes" onclick="go('componentes')"><svg class="icon nav-icon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><title>Componentes</title><path d="M205.66,50.32a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32-11.31l56-56A8,8,0,0,1,205.66,50.32ZM248,58.41a50.13,50.13,0,0,1-14.77,35.66L180,147.3A15.86,15.86,0,0,1,168.69,152H152v16.83a16,16,0,0,1-3.25,9.66,8.08,8.08,0,0,1-.72.83l-8,8a16,16,0,0,1-22.62,0L98.7,168.6l-77,77.06a8,8,0,0,1-11.32-11.32l77.05-77.05-18.7-18.71a16,16,0,0,1,0-22.63l8-8a8,8,0,0,1,.82-.72A16.14,16.14,0,0,1,87.17,104H104V87.3A15.92,15.92,0,0,1,108.68,76l53.24-53.23A50.43,50.43,0,0,1,248,58.41Zm-16,0a34.43,34.43,0,0,0-58.77-24.35L120,87.3V104a16,16,0,0,1-16,16H87.28L80,127.27,128.72,176l7.28-7.28V152a16,16,0,0,1,16-16h16.69l53.23-53.24A34.21,34.21,0,0,0,232,58.41Z"/></svg>Componentes</div>
+
+    <div class="nl">Operaciones</div>
+    <div class="ni ni-group" data-p="ingresos" data-group="ingresos" onclick="go('ingresos')"><svg class="icon icon-stroke nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><title>Ingresos</title><path d="M4 18v3h16v-14l-8 -4l-8 4v3"/><path d="M4 14h9"/><path d="M10 11l3 3l-3 3"/></svg>Ingresos <span class="ni-caret" id="caret-ingresos" onclick="toggleNavGroup('ingresos'); event.stopPropagation()">▸</span></div>
+    <div class="snav" id="snav-ingresos">
+      <div class="sni" data-p="nuevo-ingreso" onclick="go('nuevo-ingreso')">Nuevo ingreso</div>
+      <div class="sni" data-p="ingresos" onclick="go('ingresos')">Historial</div>
+    </div>
+    <div class="ni" data-p="consumos" onclick="go('consumos')"><svg class="icon icon-stroke nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><title>Consumos</title><path d="M4 19v2h16v-14l-8 -4l-8 4v2"/><path d="M13 14h-9"/><path d="M7 11l-3 3l3 3"/></svg>Consumos</div>
+    <div class="ni" data-p="sellos" onclick="go('sellos')"><svg class="icon icon-stroke nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><title>Sellos</title><path d="M5 7h14"/><path d="M5 12h14"/><path d="M5 17h14"/><path d="M8 4v16"/></svg>Sellos</div>
+    <div class="ni" data-p="ordenes" onclick="go('ordenes')"><svg class="icon icon-stroke nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><title>Órdenes de Trabajo</title><path d="M3 21h18"/><path d="M5 21v-12l5 4v-4l5 4h4"/><path d="M19 21v-8l-1.436 -9.574a.5 .5 0 0 0 -.495 -.426h-1.145a.5 .5 0 0 0 -.494 .418l-1.43 8.582"/><path d="M9 17h1"/><path d="M14 17h1"/></svg>Órdenes de Trabajo</div>
+    <div class="ni" data-p="usuarios" onclick="go('usuarios')"><svg class="icon nav-icon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><title>Usuarios</title><path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92ZM40,108a44,44,0,1,1,44,44A44.05,44.05,0,0,1,40,108Zm210.14,98.7a8,8,0,0,1-11.07-2.33A79.83,79.83,0,0,0,172,168a8,8,0,0,1,0-16,44,44,0,1,0-16.34-84.87,8,8,0,1,1-5.94-14.85,60,60,0,0,1,55.53,105.64,95.83,95.83,0,0,1,47.22,37.71A8,8,0,0,1,250.14,206.7Z"/></svg>Usuarios</div>
+
+    <div class="nl" id="nl-control">Control</div>
+    <div class="ni ni-group" id="ni-auditorias" data-p="auditorias" data-group="auditorias" onclick="go('auditorias')"><svg class="icon icon-stroke nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><title>Auditorías</title><path d="M13 15.5v-6.5a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1v4"/><path d="M18 8v-3a1 1 0 0 0 -1 -1h-13a1 1 0 0 0 -1 1v12a1 1 0 0 0 1 1h7"/><path d="M16 9h2"/><path d="M15 19l2 2l4 -4"/></svg>Auditorías <span class="ni-caret" id="caret-auditorias" onclick="toggleNavGroup('auditorias'); event.stopPropagation()">▸</span></div>
+    <div class="snav" id="snav-auditorias">
+      <div class="sni" data-p="auditorias" onclick="go('auditorias')">Dashboard</div>
+      <div class="sni" data-p="auditorias-sesiones" onclick="go('auditorias-sesiones')">Sesiones</div>
+      <div class="sni" data-p="auditorias-abc" onclick="go('auditorias-abc')">Clasificación ABC</div>
+      <div class="sni" data-p="auditorias-planes" onclick="go('auditorias-planes')">Planes</div>
+    </div>
+
+    <div class="nl">Pañol</div>
+    <div class="ni ni-group" data-p="paniol" data-group="paniol" onclick="go('paniol')"><svg class="icon nav-icon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><title>Dashboard Pañol</title><path d="M224,64H176V56a24,24,0,0,0-24-24H104A24,24,0,0,0,80,56v8H32A16,16,0,0,0,16,80V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V80A16,16,0,0,0,224,64ZM96,56a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96ZM224,80v32H192v-8a8,8,0,0,0-16,0v8H80v-8a8,8,0,0,0-16,0v8H32V80Zm0,112H32V128H64v8a8,8,0,0,0,16,0v-8h96v8a8,8,0,0,0,16,0v-8h32v64Z"/></svg>Dashboard Pañol <span class="ni-caret" id="caret-paniol" onclick="toggleNavGroup('paniol'); event.stopPropagation()">▸</span></div>
+    <div class="snav" id="snav-paniol">
+      <div class="sni" data-p="paniol-entrega" onclick="goPaniol('entrega'); event.stopPropagation()">Entrega</div>
+      <div class="sni" data-p="paniol-devolucion" onclick="goPaniol('devolucion'); event.stopPropagation()">Devolución</div>
+      <div class="sni" data-p="paniol-inventario" onclick="goPaniol('inventario'); event.stopPropagation()">Inventario herramientas</div>
+      <div class="sni" data-p="paniol-historial" onclick="goPaniol('historial'); event.stopPropagation()">Historial</div>
+      <div class="sni" data-p="paniol-mantenimiento" onclick="goPaniol('mantenimiento'); event.stopPropagation()">Mantenimiento</div>
+    </div>
+  </nav>
+  <div class="s-ft s-backup" aria-label="Respaldo y exportaciones">
+    <div class="nl">Respaldo</div>
+    <button class="s-btn" data-icon="I" title="Exportar inventario CSV" onclick="location.href='/api/export/csv'">⬇ Inventario CSV</button>
+    <button class="s-btn" data-icon="N" title="Exportar ingresos CSV" onclick="location.href='/api/export/ingresos'">⬇ Ingresos CSV</button>
+    <button class="s-btn" data-icon="C" title="Exportar consumos CSV" onclick="location.href='/api/export/consumos'">⬇ Consumos CSV</button>
+  </div>
+</aside>
+
+<!-- OVERLAY PARA CERRAR SIDEBAR (solo móvil) -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="if(window.innerWidth < 768) toggleSidebar()"></div>
+
+<!-- FICHA PRODUCTO PANEL -->
+<div class="ficha-overlay" id="ficha-ov" onclick="closeFicha()"></div>
+<div class="ficha-panel" id="ficha-panel">
+  <div class="f-hdr">
+    <div><div id="f-sku" class="m" style="font-size:11px;color:var(--ac)"></div><div id="f-nombre" style="font-size:15px;font-weight:700;margin-top:2px"></div><div id="f-cat" style="font-size:10px;color:var(--t3);margin-top:2px"></div></div>
+    <button class="mx" onclick="closeFicha()">✕</button>
+  </div>
+  <div class="f-body" id="f-body"></div>
+</div>
+
+<div class="main" id="main-container">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:10px"><button class="toggle-sidebar" id="toggle-btn" title="Ocultar/Mostrar menú" onclick="toggleSidebar()"><span>✕</span></button><button style="display:none;background:none;border:none;color:var(--t1);font-size:16px;cursor:pointer" id="mob-btn" onclick="toggleMobileSidebar()">☰</button><span class="topbar-t" id="topbar-t">Dashboard</span></div>
+    <div style="display:flex;align-items:center;gap:10px"><input type="text" class="t-search" placeholder="Buscar SKU o producto..." id="gsearch" onkeyup="if(event.key==='Enter'){$('inv-s').value=this.value;go('inventario')}"><button class="bi" title="Limpiar búsqueda" onclick="clearSectionFilters(['gsearch'])">✕</button><button class="bi" title="Configuración Avanzada" onclick="SettingsManager.openSettings()" style="color:var(--ac)">⚙️</button><span id="auth-user-chip" class="m" style="font-size:11px;color:var(--t2);padding:4px 8px;border:1px solid var(--bd);border-radius:999px">Sin sesión</span><button class="btn bsm bs" id="auth-login-btn" onclick="openLoginModal()">Iniciar sesión</button><button class="btn bsm bs" id="auth-logout-btn" onclick="logoutSession()" style="display:none">Cerrar sesión</button></div>
+  </header>
+  
+  <!-- BARRA DE NAVEGACIÓN RÁPIDA (visible cuando sidebar colapsado) -->
+  <nav class="quick-nav" id="quick-nav" role="navigation" aria-label="Navegación rápida">
+    <div class="qn-section">
+      <div class="qn-label">Principal</div>
+      <button class="qn-item" data-page="dashboard" title="Dashboard" onclick="go('dashboard')"><svg class="icon icon-stroke" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7.01L12.01 6.99889"/><path d="M16 9.01L16.01 8.99889"/><path d="M8 9.01L8.01 8.99889"/><path d="M18 13.01L18.01 12.9989"/><path d="M6 13.01L6.01 12.9989"/><path d="M17 17.01L17.01 16.9989"/><path d="M7 17.01L7.01 16.9989"/><path d="M12 17L13 11"/><path d="M8.5 20.001H4C2.74418 18.3295 2 16.2516 2 14C2 8.47715 6.47715 4 12 4C17.5228 4 22 8.47715 22 14C22 16.2516 21.2558 18.3295 20 20.001L15.5 20"/><path d="M12 23C13.6569 23 15 21.6569 15 20C15 18.3431 13.6569 17 12 17C10.3431 17 9 18.3431 9 20C9 21.6569 10.3431 23 12 23Z"/></svg></button>
+      <button class="qn-item" data-page="inventario" title="Inventario" onclick="go('inventario')"><svg class="icon icon-stroke" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21v-13l9 -4l9 4v13"/><path d="M13 13h4v8h-10v-6h6"/><path d="M13 21v-9a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v3"/></svg></button>
+      <button class="qn-item" data-page="componentes" title="Componentes" onclick="go('componentes')"><svg class="icon" viewBox="0 0 256 256" fill="currentColor"><path d="M205.66,50.32a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32-11.31l56-56A8,8,0,0,1,205.66,50.32ZM248,58.41a50.13,50.13,0,0,1-14.77,35.66L180,147.3A15.86,15.86,0,0,1,168.69,152H152v16.83a16,16,0,0,1-3.25,9.66,8.08,8.08,0,0,1-.72.83l-8,8a16,16,0,0,1-22.62,0L98.7,168.6l-77,77.06a8,8,0,0,1-11.32-11.32l77.05-77.05-18.7-18.71a16,16,0,0,1,0-22.63l8-8a8,8,0,0,1,.82-.72A16.14,16.14,0,0,1,87.17,104H104V87.3A15.92,15.92,0,0,1,108.68,76l53.24-53.23A50.43,50.43,0,0,1,248,58.41Zm-16,0a34.43,34.43,0,0,0-58.77-24.35L120,87.3V104a16,16,0,0,1-16,16H87.28L80,127.27,128.72,176l7.28-7.28V152a16,16,0,0,1,16-16h16.69l53.23-53.24A34.21,34.21,0,0,0,232,58.41Z"/></svg></button>
+    </div>
+    <div class="qn-divider"></div>
+    <div class="qn-section">
+      <div class="qn-label">Operaciones</div>
+      <button class="qn-item" data-page="nuevo-ingreso" title="Nuevo Ingreso" onclick="go('nuevo-ingreso')"><svg class="icon icon-stroke" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18v3h16v-14l-8 -4l-8 4v3"/><path d="M4 14h9"/><path d="M10 11l3 3l-3 3"/></svg></button>
+      <button class="qn-item" data-page="consumos" title="Consumos" onclick="go('consumos')"><svg class="icon icon-stroke" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19v2h16v-14l-8 -4l-8 4v2"/><path d="M13 14h-9"/><path d="M7 11l-3 3l3 3"/></svg></button>
+      <button class="qn-item" data-page="sellos" title="Sellos" onclick="go('sellos')"><svg class="icon icon-stroke" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h14"/><path d="M5 12h14"/><path d="M5 17h14"/><path d="M8 4v16"/></svg></button>
+      <button class="qn-item" data-page="ordenes" title="Órdenes" onclick="go('ordenes')"><svg class="icon icon-stroke" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21v-12l5 4v-4l5 4h4"/><path d="M19 21v-8l-1.436 -9.574a.5 .5 0 0 0 -.495 -.426h-1.145a.5 .5 0 0 0 -.494 .418l-1.43 8.582"/><path d="M9 17h1"/><path d="M14 17h1"/></svg></button>
+    </div>
+    <div class="qn-divider"></div>
+    <div class="qn-section">
+      <div class="qn-label">Gestión</div>
+      <button class="qn-item" data-page="usuarios" title="Usuarios" onclick="go('usuarios')"><svg class="icon" viewBox="0 0 256 256" fill="currentColor"><path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92ZM40,108a44,44,0,1,1,44,44A44.05,44.05,0,0,1,40,108Zm210.14,98.7a8,8,0,0,1-11.07-2.33A79.83,79.83,0,0,0,172,168a8,8,0,0,1,0-16,44,44,0,1,0-16.34-84.87,8,8,0,1,1-5.94-14.85,60,60,0,0,1,55.53,105.64,95.83,95.83,0,0,1,47.22,37.71A8,8,0,0,1,250.14,206.7Z"/></svg></button>
+      <button class="qn-item" data-page="auditorias" title="Auditorías" onclick="go('auditorias')"><svg class="icon icon-stroke" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 15.5v-6.5a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1v4"/><path d="M18 8v-3a1 1 0 0 0 -1 -1h-13a1 1 0 0 0 -1 1v12a1 1 0 0 0 1 1h7"/><path d="M16 9h2"/><path d="M15 19l2 2l4 -4"/></svg></button>
+      <button class="qn-item" data-page="paniol" title="Pañol" onclick="go('paniol')"><svg class="icon" viewBox="0 0 256 256" fill="currentColor"><path d="M224,64H176V56a24,24,0,0,0-24-24H104A24,24,0,0,0,80,56v8H32A16,16,0,0,0,16,80V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V80A16,16,0,0,0,224,64ZM96,56a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96ZM224,80v32H192v-8a8,8,0,0,0-16,0v8h-48v-8a8,8,0,0,0-16,0v8H32V80ZM32,192V128H224v64Z"/></svg></button>
+    </div>
+  </nav>
+  
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <section class="pg on" id="p-dashboard">
+      <div class="phdr"><div><div class="pt">Dashboard</div><div class="pd">Resumen general</div></div></div>
+      <div class="g4 mb10" id="d-warning"></div>
+      <!-- filtros para el dashboard avanzado -->
+      <div class="g4 mb20" id="d-filters" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+        <input type="date" class="flt" id="dash-from" onchange="loadDashboard()">
+        <input type="date" class="flt" id="dash-to" onchange="loadDashboard()">
+        <select class="flt" id="dash-cat" onchange="loadDashboard()"><option value="">Todas categorías</option></select>
+        <button class="btn bsm bs" onclick="loadDashboard()">Actualizar</button>
+        <button class="btn bsm bs" onclick="clearSectionFilters(['dash-from','dash-to','dash-cat'], loadDashboard)">Limpiar</button>
+      </div>
+      <div class="dash-stats mb20" id="d-stats"></div>
+      <!-- toggle para gráficos -->
+      <div style="margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:13px;color:var(--t2);font-weight:500">📊 Gráficos</div>
+        <button class="btn bs bsm" id="toggle-charts" onclick="toggleChartsView()">⬇ Expandir</button>
+      </div>
+      <!-- gráficos interactivos (ocultos por defecto) -->
+      <div id="charts-container" style="display:none">
+        <div class="mb20" style="position:relative">
+          <button class="btn bs bsm" style="position:absolute;top:4px;right:4px;z-index:5" onclick="expandChart(getCategoryChart(),'Distribución por categoría')">🔍</button>
+          <canvas id="d-cat-chart" height="200"></canvas>
+        </div>
+        <div class="mb20" style="position:relative">
+          <button class="btn bs bsm" style="position:absolute;top:4px;right:4px;z-index:5" onclick="expandChart(getSeriesChart(),'Ingresos vs Consumos')">🔍</button>
+          <canvas id="d-series-chart" height="200"></canvas>
+        </div>
+        <div class="g2 mb20">
+          <div><div class="sec">📦 Top 10 Más Consumidos</div><div class="tw"><div class="ts"><table><thead><tr><th>SKU</th><th>Producto</th><th>Total</th></tr></thead><tbody id="d-top"></tbody></table></div></div></div>
+          <!-- antiguo gráfico de barras queda como respaldo -->
+          <div><div class="sec">📊 Por Categoría</div><div class="cb" id="d-chart"><div class="ct">Distribución</div></div></div>
+        </div>
+      </div>
+      <div class="sec">⚠️ Stock Crítico (≤10)</div>
+      <div class="tw"><div class="ts"><table><thead><tr><th>SKU</th><th>Producto</th><th>Stock</th><th>Categoría</th><th>Acción</th></tr></thead><tbody id="d-crit"></tbody></table></div></div>
+    </section>
+
+    <!-- INVENTARIO -->
+    <section class="pg inv-page" id="p-inventario">
+      <div class="phdr inv-header"><div><div class="pt">Inventario</div><div class="pd" id="inv-c"></div></div><div class="inv-header-actions"><button class="btn bs bsm" onclick="location.href='/api/export/csv'">⬇ CSV</button><button class="btn bp" onclick="openNewItem()">+ Nuevo Producto</button></div></div>
+      <div class="tw inv-panel">
+        <div class="th inv-toolbar"><div class="inv-filter-row"><input type="text" class="flt inv-search-input" placeholder="Buscar..." id="inv-s" oninput="dbSearch('inv',searchI)" onkeyup="if(event.key==='Enter')searchI()"><select class="flt inv-filter-select" id="inv-cat" onchange="searchI()"><option value="">Categorías</option></select><select class="flt inv-filter-select" id="inv-est" onchange="searchI()"><option value="">Todos</option><option value="sin_stock">Sin Stock</option><option value="critico">Crítico</option><option value="bajo">Bajo</option><option value="normal">Normal</option></select><button class="btn bsm bs" onclick="searchI()">Buscar</button><button class="btn bsm bs" onclick="clearSectionFilters(['inv-s','inv-cat','inv-est'], searchI)">Limpiar</button></div></div>
+        <div class="ts"><table><thead><tr><th onclick="sI('sku')">SKU ↕</th><th onclick="sI('nombre')">Nombre ↕</th><th onclick="sI('categoria')">Categoría ↕</th><th onclick="sI('stock')">Stock ↕</th><th>Unid.</th><th>Nivel</th><th onclick="sI('precio')">Precio ↕</th><th>Proveedor</th><th>Ubic.</th><th>Acciones</th></tr></thead><tbody id="inv-b"></tbody></table></div>
+        <div class="pag inv-pagination" id="inv-p"></div>
+      </div>
+    </section>
+
+    <!-- NUEVO INGRESO -->
+    <section class="pg" id="p-nuevo-ingreso">
+      <div class="phdr"><div><div class="pt">Nuevo Ingreso</div><div class="pd">Registro rapido de recepcion de materiales</div></div><button class="btn bg" onclick="openNewIng()">+ Registrar Ingreso</button></div>
+      <div class="g2 mb20">
+        <div class="card">
+          <div class="sec">Flujo Principal</div>
+          <div style="font-size:12px;color:var(--t2);line-height:1.5;margin-bottom:12px">Inicia aqui para registrar una factura o guia con uno o varios productos en una sola operacion.</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn bg" onclick="openNewIng()">+ Nuevo Ingreso</button>
+            <button class="btn bs" onclick="go('ingresos')">Ver Historial</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="sec">Recomendaciones</div>
+          <div style="font-size:11px;color:var(--t3);line-height:1.6">
+            <div>1. Completa proveedor, fecha y documento.</div>
+            <div>2. Agrega todos los productos del documento.</div>
+            <div>3. Revisa el total y confirma el registro.</div>
+          </div>
+        </div>
+      </div>
+      <div class="tw">
+        <div class="th"><div class="sec" style="margin:0">Accesos rapidos</div></div>
+        <div style="padding:14px 16px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn bs" onclick="go('inventario')">Ir a Inventario</button>
+          <button class="btn bs" onclick="go('dashboard')">Ver Dashboard</button>
+          <button class="btn bs" onclick="go('consumos')">Ir a Consumos</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- INGRESOS (HISTORIAL) -->
+    <section class="pg" id="p-ingresos">
+      <div class="phdr"><div><div class="pt">Historial de Ingresos</div><div class="pd">Entradas de materiales registradas</div></div><button class="btn bg" onclick="openNewIng()">+ Nuevo Ingreso</button></div>
+      <div class="tw">
+        <div class="th history-toolbar"><div class="history-toolbar-row"><input type="text" class="flt history-filter-input" placeholder="SKU, producto, proveedor, factura, guía..." id="ig-s" oninput="dbSearch('ig',searchIG)" onkeyup="if(event.key==='Enter')searchIG()"><label class="history-date-field"><span>Desde</span><input type="date" class="flt history-date-input" id="ig-f" onchange="searchIG()"></label><label class="history-date-field"><span>Hasta</span><input type="date" class="flt history-date-input" id="ig-t" onchange="searchIG()"></label><button class="btn bsm bs" onclick="searchIG()">Buscar</button><button class="btn bsm bs" onclick="clearSectionFilters(['ig-s','ig-f','ig-t'], searchIG)">Limpiar</button><button class="btn bs" onclick="exportIG()" title="Exportar ingresos filtrados">⬇ Exportar</button></div></div>
+        <div id="ig-summary" class="th history-summary"></div>
+        <div class="ts"><table class="ingresos-doc-table"><colgroup><col><col><col><col><col><col><col></colgroup><thead><tr><th>Fecha</th><th>Documento</th><th>Proveedor</th><th>Insumos</th><th>Cant. Total</th><th>Monto Total</th><th>Detalle</th></tr></thead><tbody id="ig-b"></tbody></table></div>
+        <div class="pag" id="ig-p"></div>
+      </div>
+    </section>
+
+    <!-- CONSUMOS -->
+    <section class="pg" id="p-consumos">
+      <div class="phdr"><div><div class="pt">Consumos</div><div class="pd">Salidas de materiales</div></div><button class="btn bd" onclick="openNewCon()">+ Nuevo Consumo</button></div>
+      <div class="tw">
+        <div class="th"><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><input type="text" class="flt" placeholder="SKU, producto, solicitante..." id="co-s" style="width:240px" oninput="dbSearch('co',searchCO)" onkeyup="if(event.key==='Enter')searchCO()"><button class="btn bsm bs" onclick="searchCO()">Buscar</button><button class="btn bsm bs" onclick="clearSectionFilters(['co-s'], searchCO)">Limpiar</button><button class="btn bsm bs" title="Descargar plantilla Excel para completar OT históricas" onclick="downloadConsumosHistoricosFormatoExcel()">⬇ Formato OT Históricos (Excel)</button></div></div>
+        <div class="ts"><table class="consumos-simple-table"><thead><tr><th>SKU</th><th>Descripción</th><th>Fecha</th><th>Solicitado</th><th style="text-align:right">Consumo</th><th style="text-align:right">$ UN</th><th>OT</th><th>OBS</th><th style="width:120px">Acciones</th></tr></thead><tbody id="co-b"></tbody></table></div>
+        <div class="pag" id="co-p"></div>
+      </div>
+    </section>
+
+    <!-- SELLOS -->
+    <section class="pg sellos-page" id="p-sellos">
+      <div class="phdr"><div><div class="pt">Sellos</div><div class="pd">Control de rendimiento por bocina (consumo parcial en mm)</div></div></div>
+      <div class="tw sellos-form-card">
+        <div class="th sellos-form-head"><div class="sec" style="margin:0">Registrar producción de sellos</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bg" onclick="openSelloIngresoModal()">+ Llegada de bocinas</button><button class="btn bs" onclick="migrarCodigosSellos()">↻ Migrar códigos desde inventario</button><button class="btn bs" onclick="importCsvSellos()">⇪ Importar CSV completo</button></div></div>
+        <div class="sellos-dual-shell">
+          <div class="sellos-panel sellos-panel-left">
+            <div class="sellos-panel-title">Bocinas disponibles</div>
+            <div class="sellos-left-toolbar">
+              <input type="text" class="flt sellos-search" id="se-browse" placeholder="Buscar NCB, SKU, material o medida..." oninput="dbSearch('se-browse',searchSellosBocinas)" onkeyup="if(event.key==='Enter')searchSellosBocinas()">
+              <button class="btn bs" onclick="searchSellosBocinas()">Buscar</button>
+              <button class="btn bs" onclick="clearSectionFilters(['se-browse'], searchSellosBocinas)">Limpiar</button>
+            </div>
+            <div class="sellos-bocina-list" id="se-bocina-list"></div>
+          </div>
+
+          <div class="sellos-panel sellos-panel-right">
+            <div class="sellos-panel-title">Registro de consumo</div>
+            <div class="sellos-selected-box" id="se-selected-box">Selecciona una bocina en la lista izquierda.</div>
+            <input type="hidden" id="se-bocina-sku">
+            <input type="hidden" id="se-bocina-codigo">
+
+            <div class="sellos-grid-primary">
+              <div class="fg"><label class="fl">Fecha</label><input type="date" class="fi" id="se-fecha"></div>
+              <div class="fg"><label class="fl">OT (obligatoria)</label><input type="text" class="fi" id="se-ot" placeholder="Ej: OT-2026-001"></div>
+              <div class="fg"><label class="fl">Cantidad sellos</label><input type="number" class="fi" id="se-cantidad" min="1" step="1" value="1"></div>
+              <div class="fg"><label class="fl">MM usados por sello</label><input type="number" class="fi" id="se-largo" min="0.01" step="0.01" value="1"></div>
+            </div>
+            <div class="sellos-grid-secondary">
+              <div class="fg"><label class="fl">Observaciones</label><input type="text" class="fi" id="se-obs" placeholder="Opcional"></div>
+              <div class="sellos-calc" id="se-calc">Consumo estimado: 0 mm</div>
+              <button class="btn bd" onclick="saveSelloProduccion()">✓ Registrar</button>
+            </div>
+            <div class="sellos-stock-info" id="se-stock-info">Selecciona una bocina para ver stock disponible.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tw sellos-material-guide-card">
+        <div class="th">
+          <div class="sellos-guide-head">
+            <div class="sec" style="margin:0">Guía rápida de materiales (nombre y uso)</div>
+            <button class="btn bs" id="se-guide-toggle-btn" onclick="toggleSellosGuide()">Ver guía rápida</button>
+          </div>
+        </div>
+        <div class="ts sellos-guide-wrap" id="se-guide-wrap" style="display:none">
+          <table class="sellos-material-guide-table">
+            <thead>
+              <tr>
+                <th>Material</th>
+                <th>Significado / Nombre completo</th>
+                <th>Descripción y uso principal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Bocina</td><td>Buje / Casquillo</td><td>Componente tipo bushing. Se refiere al material en tubo para fabricar estas piezas (bronce, resina fenólica o plásticos como POM).</td></tr>
+              <tr><td>FPM</td><td>Caucho Fluorado (FKM / Viton®)</td><td>Elastómero de alto rendimiento con excelente resistencia a alta temperatura, aceites, combustibles y químicos agresivos.</td></tr>
+              <tr><td>H-NBR</td><td>Caucho Nitrilo Butadieno Hidrogenado</td><td>Versión mejorada del NBR estándar, con mayor resistencia a temperatura, ozono y degradación química.</td></tr>
+              <tr><td>HPU</td><td>Poliuretano Resistente a la Hidrólisis</td><td>PU modificado para resistir agua/humedad. Muy usado en cilindros hidráulicos por resistencia al desgaste y abrasión.</td></tr>
+              <tr><td>NBR</td><td>Caucho Nitrilo Butadieno (Nitrilo)</td><td>Material estándar y económico para sellos de uso general; excelente resistencia a aceites minerales y grasas convencionales.</td></tr>
+              <tr><td>H-NBR 90 BLACK</td><td>HNBR - Dureza 90 Shore A (Negro)</td><td>HNBR formulado con dureza alta (90) para soportar mayores presiones sin deformarse, fabricado en color negro.</td></tr>
+              <tr><td>POM</td><td>Polioximetileno (Acetal o Delrin®)</td><td>Plástico de ingeniería duro, rígido y mecanizable. Usado en anillos antiextrusión, anillos guía y piezas estructurales.</td></tr>
+              <tr><td>PTFE D46</td><td>Politetrafluoroetileno (Teflón®) con carga</td><td>PTFE con aditivos (bronce/carbón) para mejorar resistencia al desgaste y reducir deformación bajo presión.</td></tr>
+              <tr><td>PTFE I</td><td>PTFE Grado I (Virgen)</td><td>Clasificación de fabricante para teflón puro. Máxima resistencia química y muy baja fricción; más blando que PTFE con carga.</td></tr>
+              <tr><td>PTFE II</td><td>PTFE Grado II (Con carga)</td><td>Clasificación de fabricante para teflón modificado (fibra de vidrio, grafito o bronce) con mejores propiedades mecánicas.</td></tr>
+              <tr><td>PTFE REIN</td><td>PTFE Puro ("Rein" = puro en alemán)</td><td>Teflón 100% virgen, sin aditivos. Se usa cuando se requiere máxima resistencia química o grado alimentario.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tw sellos-list-card">
+        <div class="th sellos-list-head"><div class="sellos-list-filters"><input type="text" class="flt sellos-search" placeholder="Buscar SKU, OT, descripcion u obs..." id="se-s" oninput="dbSearch('se',searchSE)" onkeyup="if(event.key==='Enter')searchSE()"><button class="btn bs" onclick="searchSE()">Buscar</button><button class="btn bs" onclick="clearSectionFilters(['se-s'], searchSE)">Limpiar</button></div><div class="sellos-summary">Total sellos: <span class="m" id="se-total-sellos">0</span> · MM consumidos: <span class="m" id="se-total-mm">0</span> · Rendimiento: <span class="m" id="se-rend">0</span>/1000mm</div></div>
+        <div class="ts"><table class="sellos-table"><thead><tr><th>Fecha</th><th>Bocina</th><th>OT</th><th style="text-align:right">Sellos</th><th style="text-align:right">MM/sello</th><th style="text-align:right">Consumo mm</th><th style="text-align:right">Stock bocina</th><th>Obs</th><th style="width:70px">Acciones</th></tr></thead><tbody id="se-b"></tbody></table></div>
+        <div class="pag" id="se-p"></div>
+      </div>
+    </section>
+
+    <!-- ORDENES -->
+    <section class="pg" id="p-ordenes">
+      <div class="phdr"><div><div class="pt">Órdenes de Trabajo</div></div><button class="btn bp" onclick="openNewOT()">+ Nueva OT</button></div>
+      <div class="tw">
+        <div class="th"><div style="display:flex;gap:6px"><input type="text" class="flt" placeholder="Nº OT, descripción, cliente..." id="ot-s" style="width:260px" oninput="dbSearch('ot',searchOT)" onkeyup="if(event.key==='Enter')searchOT()"><button class="btn bsm bs" onclick="searchOT()">Buscar</button><button class="btn bsm bs" onclick="clearSectionFilters(['ot-s'], searchOT)">Limpiar</button></div></div>
+        <div class="ts"><table><thead><tr><th>Nº OT</th><th>Descripción</th><th>Cliente</th><th>Ref.</th><th>Fecha</th><th>Materiales</th><th style="width:80px">Acciones</th></tr></thead><tbody id="ot-b"></tbody></table></div>
+        <div class="pag" id="ot-p"></div>
+      </div>
+    </section>
+
+    <!-- COMPONENTES -->
+    <section class="pg" id="p-componentes">
+      <div class="phdr"><div><div class="pt">Componentes</div><div class="pd">Gestión de componentes y sus materiales</div></div><button class="btn bp" onclick="openNewComp()">+ Nuevo Componente</button></div>
+      <div class="tw">
+        <div class="th"><div style="display:flex;gap:6px"><input type="text" class="flt" placeholder="Nombre, código..." id="comp-s" style="width:260px" oninput="dbSearch('comp',searchComp)" onkeyup="if(event.key==='Enter')searchComp()"><button class="btn bsm bs" onclick="searchComp()">Buscar</button><button class="btn bsm bs" onclick="clearSectionFilters(['comp-s'], searchComp)">Limpiar</button></div></div>
+        <div class="ts"><table><thead><tr><th>ID</th><th>Nombre</th><th>Código</th><th>Descripción</th><th style="width:100px">Acciones</th></tr></thead><tbody id="comp-b"></tbody></table></div>
+        <div class="pag" id="comp-p"></div>
+      </div>
+    </section>
+
+    <!-- USUARIOS (GLOBAL) -->
+    <section class="pg" id="p-usuarios">
+      <div class="phdr">
+        <div><div class="pt">Usuarios</div><div class="pd">Base única de responsables para todo el sistema</div></div>
+        <button class="btn bg" onclick="openNewEmpleado()">+ Nuevo Usuario</button>
+      </div>
+      <div class="tw">
+        <div class="th">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+            <input type="text" class="flt" placeholder="Nombre, número, cargo..." id="paniol-users-search" style="width:280px" onkeyup="if(event.key==='Enter')searchPaniolUsers()">
+            <select class="flt" id="paniol-users-dept" onchange="searchPaniolUsers()">
+              <option value="">Todos departamentos</option>
+            </select>
+            <button class="btn bsm bs" onclick="searchPaniolUsers()">Buscar</button>
+            <button class="btn bsm bs" onclick="clearSectionFilters(['paniol-users-search','paniol-users-dept'], searchPaniolUsers)">Limpiar</button>
+          </div>
+        </div>
+        <div class="ts">
+          <table>
+            <thead><tr><th>Nº Empleado</th><th>Nombre</th><th>Cargo</th><th>Departamento</th><th>Email</th><th>Estado</th><th style="width:100px">Acciones</th></tr></thead>
+            <tbody id="paniol-users-body"><tr><td colspan="7" style="text-align:center;padding:24px;color:var(--t3)">Cargando...</td></tr></tbody>
+          </table>
+        </div>
+        <div class="pag" id="paniol-users-p"></div>
+      </div>
+
+      <div class="phdr" style="margin-top:16px">
+        <div><div class="pt">Usuarios del Sistema</div><div class="pd">Cuentas de acceso, roles y permisos editables por Administrador</div></div>
+        <button class="btn bp" id="btn-new-system-user" onclick="openNewSystemUser()" style="display:none">+ Nuevo Usuario Sistema</button>
+      </div>
+      <div class="tw">
+        <div class="th">
+          <div id="sys-users-help" style="font-size:11px;color:var(--t3)">Cargando permisos...</div>
+        </div>
+        <div class="ts">
+          <table>
+            <thead><tr><th>Usuario</th><th>Nombre</th><th>Rol</th><th>Estado</th><th>Último acceso</th><th style="width:140px">Acciones</th></tr></thead>
+            <tbody id="sys-users-body"><tr><td colspan="6" style="text-align:center;padding:24px;color:var(--t3)">Cargando...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAÑOL - DASHBOARD UNIFICADO -->
+
+    <section class="pg" id="p-paniol">
+      <div class="phdr">
+        <div>
+          <div class="pt">Pañol</div>
+          <div class="pd">Gestión de herramientas.</div>
+        </div>
+      </div>
+
+      <!-- Contenedor de notificaciones profesionales -->
+      <div id="paniol-feedback-container"></div>
+
+      <div style="display:none">
+        <span id="kpi-mant-vencidos">-</span>
+        <span id="kpi-calib-vencidas">-</span>
+      </div>
+
+      <div class="paniol-dashboard-shell mb20" id="paniol-dashboard-shell">
+        <div class="paniol-dashboard-card">
+          <div class="paniol-dashboard-title">Dashboard Pañol</div>
+          <div class="paniol-dashboard-subtitle">Cada módulo ahora abre de forma independiente desde el submenú lateral para aprovechar mejor el espacio de trabajo.</div>
+        </div>
+        <div class="paniol-dashboard-quicknav">
+          <button class="btn bs" onclick="goPaniol('entrega')">Ir a Entrega</button>
+          <button class="btn bs" onclick="goPaniol('devolucion')">Ir a Devolución</button>
+          <button class="btn bs" onclick="goPaniol('inventario')">Ir a Inventario</button>
+          <button class="btn bs" onclick="goPaniol('historial')">Ir a Historial</button>
+          <button class="btn bs" onclick="goPaniol('mantenimiento')">Ir a Mantenimiento</button>
+        </div>
+      </div>
+
+      <div class="paniol-panel" id="paniol-panel-dashboard">
+        <div class="paniol-kpi-grid paniol-kpi-grid-compact mb20" id="paniol-kpis">
+          <div class="paniol-kpi-card compact">
+            <div class="paniol-kpi-icon-box icon-kpi primary" role="img" aria-label="KPI Préstamos Activos">□</div>
+            <div>
+              <div class="paniol-kpi-label">PRÉSTAMOS ACTIVOS</div>
+              <div class="paniol-kpi-value" id="kpi-prestadas">-</div>
+            </div>
+          </div>
+          <div class="paniol-kpi-card compact">
+            <div class="paniol-kpi-icon-box icon-kpi warning" role="img" aria-label="KPI En Mantención">⌁</div>
+            <div>
+              <div class="paniol-kpi-label">EN MANTENCIÓN</div>
+              <div class="paniol-kpi-value" id="kpi-mantenimiento">-</div>
+            </div>
+          </div>
+          <div class="paniol-kpi-card compact">
+            <div class="paniol-kpi-icon-box icon-kpi danger" role="img" aria-label="KPI Dañadas/Bajas">!</div>
+            <div>
+              <div class="paniol-kpi-label">DAÑADAS / BAJAS</div>
+              <div class="paniol-kpi-value" id="kpi-defectuosas">-</div>
+            </div>
+          </div>
+          <div class="paniol-kpi-card compact">
+            <div class="paniol-kpi-icon-box icon-kpi neutral" role="img" aria-label="KPI Total Activos">◈</div>
+            <div>
+              <div class="paniol-kpi-label">TOTAL ACTIVOS</div>
+              <div class="paniol-kpi-value" id="kpi-total">-</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="paniol-panel" id="paniol-panel-entrega">
+        <section class="paniol-op-card">
+          <header class="paniol-op-header">
+            <div>
+              <h3>Registrar Salida de Activos</h3>
+              <p>Transaccion de panol oficial</p>
+            </div>
+          </header>
+
+          <div class="paniol-op-top">
+            <div class="paniol-op-field">
+              <label>Responsable de movimiento</label>
+              <div class="paniol-user-selector">
+                <input type="text" class="flt" id="entrega-user-filter" placeholder="Filtrar usuario..." oninput="filterUserOptions('entrega')">
+                <select id="entrega-user-select" onchange="selectEntregaUsuarioFromDropdown(this.value)">
+                  <option value="">-- selecciona usuario --</option>
+                </select>
+              </div>
+            </div>
+            <div class="paniol-op-field">
+              <label>Fecha y detalle de salida</label>
+              <div class="paniol-op-inline">
+                <input type="date" id="entrega-date" class="flt" />
+                <div class="paniol-op-note" style="margin:0;min-height:38px;display:flex;align-items:center">La observacion se registra por cada herramienta seleccionada.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="paniol-op-grid">
+            <div class="tw">
+              <div class="th" style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+                <div class="sec" style="margin:0">Herramientas para salida</div>
+                <div style="display:flex;gap:6px;align-items:center"><input type="text" class="flt" placeholder="Buscar herramienta..." id="entrega-tool-search" style="max-width:280px" oninput="onEntregaToolSearchInput()"><button class="btn bsm bs" onclick="clearSectionFilters(['entrega-tool-search'], searchEntregaHerramientas)">Limpiar</button></div>
+              </div>
+              <div class="ts" style="max-height:380px;overflow:auto">
+                <table>
+                  <thead><tr><th>SKU</th><th>Nombre</th><th>Estado</th><th>Disp</th><th>Accion</th></tr></thead>
+                  <tbody id="entrega-tool-results"><tr><td colspan="5" style="text-align:center;color:var(--t3);padding:24px">No hay herramientas disponibles</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="tw">
+              <div class="th" style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+                <div class="sec" style="margin:0">Resumen</div>
+                <span class="badge-condicion operativa" id="entrega-count-badge">0 items</span>
+              </div>
+              <div class="ts" style="max-height:300px;overflow:auto">
+                <table>
+                  <thead><tr><th>ID</th><th>Herramienta</th><th>Observacion</th><th></th></tr></thead>
+                  <tbody id="entrega-cart-body"><tr><td colspan="4" style="text-align:center;color:var(--t3);padding:24px">Seleccione al menos una herramienta para proceder.</td></tr></tbody>
+                </table>
+              </div>
+              <div class="paniol-op-note" id="entrega-summary-note">Seleccione al menos una herramienta para proceder con el registro.</div>
+            </div>
+          </div>
+
+          <footer class="paniol-op-footer">
+            <button class="btn" onclick="switchPaniolTab('dashboard')">Cerrar</button>
+            <button class="btn bp" id="entrega-confirm-btn" onclick="confirmEntrega()">Confirmar operacion</button>
+          </footer>
+        </section>
+      </div>
+
+      <div class="paniol-panel" id="paniol-panel-devolucion">
+        <section class="paniol-op-card">
+          <header class="paniol-op-header">
+            <div>
+              <h3>Registrar Devolucion de Activos</h3>
+              <p>Transaccion de panol oficial</p>
+            </div>
+          </header>
+
+          <div class="paniol-op-top">
+            <div class="paniol-op-field">
+              <label>Responsable de movimiento</label>
+              <div class="paniol-user-selector">
+                <input type="text" class="flt" id="devolucion-user-filter" placeholder="Filtrar usuario..." oninput="filterUserOptions('devolucion')">
+                <select id="devolucion-user-select" onchange="selectDevolucionUsuarioFromDropdown(this.value)">
+                  <option value="">-- selecciona usuario --</option>
+                </select>
+              </div>
+            </div>
+            <div class="paniol-op-field">
+              <label>Fecha y observacion general de devolucion</label>
+              <div class="paniol-op-inline">
+                <input type="date" id="devolucion-date" class="flt" />
+                <input type="text" id="devolucion-obs" class="flt" placeholder="Observacion general (opcional)">
+              </div>
+            </div>
+          </div>
+
+          <div class="paniol-op-grid">
+            <div class="tw">
+              <div class="th" style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+                <div class="sec" style="margin:0">Herramientas a devolver (seleccionadas)</div>
+                <span class="badge-condicion operativa" id="devol-count-badge">0 items</span>
+              </div>
+              <div class="ts" style="max-height:380px;overflow:auto">
+                <table>
+                  <thead><tr><th>ID</th><th>Herramienta</th><th></th></tr></thead>
+                  <tbody id="devol-cart-body"><tr><td colspan="3" style="text-align:center;color:var(--t3);padding:24px">No hay préstamos seleccionados.</td></tr></tbody>
+                </table>
+              </div>
+              <div class="paniol-op-note" id="devol-summary-note">Seleccione al menos una herramienta para registrar la devolucion.</div>
+            </div>
+
+            <div class="tw">
+              <div class="th" style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+                <div class="sec" style="margin:0">Herramientas a cargo del usuario</div>
+                <div style="display:flex;gap:6px;align-items:center"><input type="text" class="flt" placeholder="Buscar préstamo..." id="devol-tool-search" style="max-width:280px" oninput="onDevolucionToolSearchInput()"><button class="btn bsm bs" onclick="clearSectionFilters(['devol-tool-search'], searchDevolucionHerramientas)">Limpiar</button></div>
+              </div>
+              <div class="ts" style="max-height:300px;overflow:auto">
+                <table>
+                  <thead><tr><th>SKU</th><th>Herramienta</th><th>Tecnico</th></tr></thead>
+                  <tbody id="devol-tool-results"><tr><td colspan="3" style="text-align:center;color:var(--t3);padding:24px">Seleccione un usuario para ver sus herramientas a cargo.</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <footer class="paniol-op-footer">
+            <button class="btn" onclick="switchPaniolTab('dashboard')">Cerrar</button>
+            <button class="btn bp" id="devol-confirm-btn" onclick="confirmDevolucion()">Confirmar operacion</button>
+          </footer>
+        </section>
+      </div>
+
+      <div class="paniol-panel" id="paniol-panel-inventario">
+        <div class="tw">
+          <div class="th" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+            <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><input type="text" class="flt" placeholder="Buscar..." id="paniol-inv-search" style="width:230px" oninput="dbSearch('paniol-inv',loadInventarioTab)"><button class="btn bsm bs" onclick="clearSectionFilters(['paniol-inv-search'], loadInventarioTab)">Limpiar</button></div>
+            <button class="btn bp" onclick="openNewHerramienta()">+ Nuevo</button>
+          </div>
+          <div class="ts">
+            <table>
+              <thead><tr><th>Código</th><th>Nombre</th><th>Cat</th><th>Estado</th><th style="text-align:center">Cantidad</th><th style="width:220px">Acciones</th></tr></thead>
+              <tbody id="paniol-inv-body"><tr><td colspan="6" style="text-align:center;padding:24px;color:var(--t3)">Cargando...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="paniol-panel" id="paniol-panel-historial">
+        <div class="tw">
+          <div class="th"><div class="sec" style="margin:0">Historial de Movimientos</div></div>
+          <div class="ts">
+            <table>
+              <thead><tr><th>Herramienta</th><th>Técnico</th><th>Salida</th><th>Retorno</th><th>Estado</th></tr></thead>
+              <tbody id="paniol-hist-body"><tr><td colspan="5" style="text-align:center;padding:24px;color:var(--t3)">Cargando...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="paniol-panel" id="paniol-panel-mantenimiento">
+        <div class="maint-section">
+          <!-- KPI strip -->
+          <div class="maint-kpi-strip">
+            <div class="maint-kpi warning"><span class="maint-kpi-val" id="paniol-mant-send-count">0</span><span class="maint-kpi-lbl">Disponibles para envío</span></div>
+            <div class="maint-kpi ok"><span class="maint-kpi-val" id="paniol-mant-recv-count">0</span><span class="maint-kpi-lbl">En mantención</span></div>
+          </div>
+          <!-- Toolbar -->
+          <div class="maint-toolbar">
+            <div class="maint-search-wrap">
+              <svg class="maint-search-icon" viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
+              <input type="text" class="maint-search" placeholder="Buscar por SKU, nombre..." id="paniol-mant-search" oninput="onMantenimientoSearchInput()">
+            </div>
+            <button class="btn bsm bs" onclick="clearSectionFilters(['paniol-mant-search'], loadMantenimientoTab)">Limpiar</button>
+            <button class="btn bsm bs" onclick="mostrarAlertasCalibración()" title="Ver alertas de calibración próximas a vencer">⚠️ Alertas</button>
+            <button class="btn bsm bs" onclick="generarReporteCostos()" title="Reporte de costos últimos 90 días">📊 Reporte</button>
+            <button class="btn bg" id="paniol-mant-confirm" onclick="confirmMantenimientoRecepcion()" disabled>Recibir y Habilitar</button>
+          </div>
+          <!-- Table -->
+          <div class="maint-table-wrap">
+            <table class="maint-table">
+              <thead><tr><th>SKU</th><th>Nombre</th><th>Estado</th><th style="width:90px;text-align:center">Acción</th><th style="width:120px;text-align:center">Profesional</th></tr></thead>
+              <tbody id="paniol-mant-list">
+                <tr><td colspan="5" style="text-align:center;color:var(--t3);padding:24px">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+<!-- MODAL ITEM -->
+<div class="mb" id="m-item"><div class="mo"><div class="mh"><div class="mt" id="mi-t">Nuevo Producto</div><button class="mx" onclick="closeItemModal()">✕</button></div><div class="mbd"><input type="hidden" id="mi-esku"><div class="fr"><div class="fg"><label class="fl">SKU *</label><input type="text" class="fi" id="mi-sku"></div><div class="fg"><label class="fl">Nombre *</label><input type="text" class="fi" id="mi-nom"></div></div><div class="fr"><div class="fg"><label class="fl">Categoría</label><input type="text" class="fi" id="mi-cat" list="cl"><datalist id="cl"></datalist></div><div class="fg"><label class="fl">Unidad</label><select class="fs" id="mi-uni"><option>Unidad</option><option>Kg</option><option>Lt</option><option>Mt</option><option>Caja</option><option>Rollo</option><option>Par</option><option>Galón</option></select></div></div><div class="fr"><div class="fg"><label class="fl">Stock</label><input type="number" class="fi" id="mi-stk" value="0" min="0" step=".01"></div><div class="fg"><label class="fl">Precio Unit.</label><input type="number" class="fi" id="mi-pre" value="0" min="0" step=".01"></div></div><div class="fr"><div class="fg"><label class="fl">Stock Mínimo</label><input type="number" class="fi" id="mi-stk-min" value="0" min="0" step=".01"></div><div class="fg"><label class="fl">Stock Máximo</label><input type="number" class="fi" id="mi-stk-max" value="0" min="0" step=".01"></div></div><div class="fr"><div class="fg"><label class="fl">Ubicación</label><input type="text" class="fi" id="mi-ubi"></div><div class="fg"><label class="fl">Proveedor</label><input type="text" class="fi" id="mi-prv"></div></div></div><div class="mft" style="display:flex;gap:8px;align-items:center"><button class="btn bs" onclick="closeItemModal()">Cancelar</button><button class="btn no" id="mi-del" style="display:none" onclick="deleteItemModal()">Eliminar</button><button class="btn bp" id="mi-save" onclick="saveItem()">Guardar</button></div></div></div>
+
+<!-- MODAL INGRESO BATCH -->
+<div class="mb" id="m-ing"><div class="mo mo-lg"><div class="mh"><div><div class="mt">📥 Recepción de Materiales</div><div style="font-size:10px;color:var(--t3);margin-top:2px">Registra todos los productos de una factura o guía</div></div><button class="mx" onclick="closeIng()">✕</button></div><div class="mbd" style="padding:0">
+  <!-- Datos del Documento -->
+  <div class="ing-section ing-section--doc">
+    <div class="ing-sec-title" style="color:var(--ac)">Datos del Documento</div>
+    <div class="ing-grid3"><div class="fg"><label class="fl">Fecha *</label><input type="date" class="fi" id="ni-fecha"></div><div class="fg"><label class="fl">Proveedor *</label><input type="text" class="fi" id="ni-prov" list="pvl"><datalist id="pvl"></datalist></div><div class="fg"><label class="fl">Nº Factura</label><input type="text" class="fi" id="ni-fact"></div></div>
+    <div class="ing-grid3" style="margin-top:10px"><div class="fg"><label class="fl">Nº Guía Despacho</label><input type="text" class="fi" id="ni-guia"></div><div class="fg"><label class="fl">Nº OC</label><input type="text" class="fi" id="ni-oc"></div><div class="fg"><label class="fl">Transportista</label><input type="text" class="fi" id="ni-trans"></div></div>
+    <div class="ing-grid3" style="margin-top:10px;grid-template-columns:1fr 2fr"><div class="fg"><label class="fl">N° Documento Transportista</label><input type="text" class="fi" id="ni-trans-doc" placeholder="Ej: guía interna / folio"></div><div class="fg"><label class="fl">Observaciones</label><input type="text" class="fi" id="ni-obs" placeholder="Notas opcionales..."></div></div>
+  </div>
+  <!-- Productos -->
+  <div class="ing-section ing-section--prod">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div class="ing-sec-title" style="color:var(--ok);margin-bottom:0">Productos</div><div class="ing-prod-count" id="ni-cnt">0 productos</div></div>
+    <div id="ni-add-section" class="ing-add-box">
+      <input type="file" id="ni-pdf-file" accept="application/pdf,.pdf" style="display:none" onchange="handleIngresoPdfSelected(event)">
+      <div id="ni-pdf-review" style="display:none;border:1px solid var(--bd);border-radius:8px;padding:10px;background:var(--bg2);margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+          <div style="font-size:11px;font-weight:600">Previsualización PDF (requiere revisión humana)</div>
+          <div id="ni-pdf-stats" style="font-size:10px;color:var(--t3)"></div>
+        </div>
+        <div class="table-scroll" style="max-height:180px;overflow:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>SKU</th>
+                <th>Descripción</th>
+                <th style="text-align:right">Cant.</th>
+                <th style="text-align:right">Precio</th>
+                <th style="text-align:right">Dcto%</th>
+                <th style="text-align:center">Conf.</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="ni-pdf-body"></tbody>
+          </table>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:8px">
+          <button class="btn bs" onclick="clearIngresoPdfPreview()">Limpiar preview</button>
+          <button class="btn bg" onclick="applyIngresoPdfPreview()">Aplicar al ingreso</button>
+        </div>
+      </div>
+      <div class="ing-add-row">
+        <div class="fg sku-w" style="margin:0"><label class="fl">Producto</label><input type="text" class="fi" id="ni-asku" oninput="skuS(this,'ni-add')" autocomplete="off" placeholder="SKU o nombre..."><div class="sku-dd" id="ni-add-dd"></div><input type="hidden" id="ni-add-v"><input type="hidden" id="ni-add-n"><input type="hidden" id="ni-add-u"></div>
+        <div class="fg" style="margin:0"><label class="fl">Cantidad *</label><input type="number" class="fi" id="ni-aq" min=".01" step=".01" value="1"></div>
+        <div class="fg" style="margin:0"><label class="fl">Precio *</label><input type="number" class="fi" id="ni-ap" min="0" step=".01" value="0"></div>
+        <div class="fg" style="margin:0"><label class="fl">Dcto%</label><input type="number" class="fi" id="ni-ad" min="0" max="100" step=".1" value="0"></div>
+      </div>
+      <div class="ing-add-actions">
+        <button class="btn bg" onclick="addNI()">+ Agregar</button>
+        <button class="btn bs" onclick="triggerIngresoPdfPicker()">📄 Importar PDF proveedor</button>
+        <button class="btn bp" onclick="openNewItem(true)">+ Crear Insumo Nuevo</button>
+      </div>
+      <div id="ni-info" style="font-size:10px;color:var(--t3);margin-top:6px"></div>
+      <div id="ni-pdf-meta" style="font-size:10px;color:var(--t3);margin-top:4px">Sin archivo cargado</div>
+    </div>
+    <div class="table-scroll"><table><thead><tr><th>#</th><th>SKU</th><th>Producto</th><th style="text-align:right">Cant.</th><th style="text-align:right">Precio</th><th style="text-align:right">Dcto%</th><th style="text-align:right">Subtotal</th><th></th></tr></thead><tbody id="ni-body"><tr><td colspan="8" style="text-align:center;padding:20px;color:var(--t3);font-size:10px">Agrega productos arriba</td></tr></tbody></table></div>
+  </div>
+  <!-- Footer -->
+  <div id="m-ing-actions" class="ing-footer">
+    <div class="ing-footer-stats"><div><div class="ing-stat-label">Items</div><div class="ing-stat-value" id="ni-ti">0</div></div><div><div class="ing-stat-label">Unidades</div><div class="ing-stat-value" id="ni-tu">0</div></div><div><div class="ing-stat-label">Total</div><div class="ing-stat-value ing-stat-value--total" id="ni-tt">$ 0</div></div></div>
+    <div class="ing-footer-btns"><button class="btn bs" onclick="closeIng()">Cancelar</button><button class="btn bg" onclick="saveIB()">✓ Registrar Ingreso</button></div>
+  </div>
+</div></div></div>
+
+<!-- MODAL CONSUMO BATCH -->
+<div class="mb" id="m-con"><div class="mo mo-lg"><div class="mh"><div><div class="mt" id="m-con-title">📤 Retiro de Materiales</div><div style="font-size:10px;color:var(--t3);margin-top:2px" id="m-con-subtitle">Registra múltiples productos para un solicitante u OT</div></div><button class="mx" onclick="closeCon()">✕</button></div><div class="mbd" style="padding:0">
+  <!-- Datos del Retiro -->
+  <div class="ing-section ing-section--doc">
+    <div class="ing-sec-title" style="color:var(--no)">Datos del Retiro</div>
+    <div class="ing-grid3"><div class="fg"><label class="fl">Fecha *</label><input type="date" class="fi" id="nc-fecha"></div><div class="fg"><label class="fl">Solicitante *</label><div style="display:flex;flex-direction:column;gap:6px"><input type="text" class="fi" id="nc-sol-filter" placeholder="Filtrar por nombre o número" oninput="filterConsumoUserOptions()"><select class="fs" id="nc-sol-select" onchange="selectConsumoUser(this.value)"><option value="">-- Seleccione un usuario --</option></select><input type="hidden" id="nc-sol"></div></div><div class="fg"><label class="fl">Nº Orden de Trabajo</label><input type="text" class="fi" id="nc-ot" placeholder="OT (opcional)"></div></div>
+    <div style="margin-top:10px"><div class="fg" style="margin:0"><label class="fl">Observaciones</label><input type="text" class="fi" id="nc-obs" placeholder="Notas opcionales..."></div></div>
+  </div>
+  <!-- Productos a Retirar -->
+  <div class="ing-section ing-section--prod">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div class="ing-sec-title" style="color:var(--no);margin-bottom:0">Productos a Retirar</div><div class="ing-prod-count" id="nc-cnt">0 productos</div></div>
+    <div class="ing-add-box">
+      <div style="display:grid;grid-template-columns:3fr 1fr;gap:10px;align-items:end">
+        <div class="fg sku-w" style="margin:0"><label class="fl">Producto</label><input type="text" class="fi" id="nc-asku" oninput="skuS(this,'nc-add')" autocomplete="off" placeholder="SKU o nombre..."><div class="sku-dd" id="nc-add-dd"></div><input type="hidden" id="nc-add-v"><input type="hidden" id="nc-add-n"><input type="hidden" id="nc-add-u"><input type="hidden" id="nc-add-st"></div>
+        <div class="fg" style="margin:0"><label class="fl">Cantidad *</label><input type="number" class="fi" id="nc-aq" min=".01" step=".01" value="1"></div>
+      </div>
+      <div class="ing-add-actions">
+        <button class="btn bd" onclick="addNC()">+ Agregar</button>
+      </div>
+      <div id="nc-info" style="font-size:10px;color:var(--t3);margin-top:6px"></div>
+    </div>
+    <div class="table-scroll"><table><thead><tr><th>#</th><th>SKU</th><th>Producto</th><th style="text-align:right">Stock Disp.</th><th style="text-align:right">Cantidad</th><th></th></tr></thead><tbody id="nc-body"><tr><td colspan="6" style="text-align:center;padding:20px;color:var(--t3);font-size:10px">Agrega productos arriba</td></tr></tbody></table></div>
+  </div>
+  <!-- Footer -->
+  <div class="ing-footer">
+    <div class="ing-footer-stats"><div><div class="ing-stat-label">Items</div><div class="ing-stat-value" id="nc-ti">0</div></div><div><div class="ing-stat-label">Total Unid.</div><div class="ing-stat-value" style="color:var(--no)" id="nc-tu">0</div></div></div>
+    <div class="ing-footer-btns"><button class="btn bs" onclick="closeCon()">Cancelar</button><button class="btn bd" id="m-con-save-btn" onclick="saveCB()">✓ Registrar Consumo</button></div>
+  </div>
+</div></div></div>
+
+  <div class="mb" id="m-con-edit"><div class="mo" style="max-width:640px"><div class="mh consumo-edit-head"><div><div class="mt">Editar Consumo</div><div class="consumo-edit-sub" id="ce-source-note"></div></div><button class="mx" onclick="closeConsumoEdit()">✕</button></div><div class="mbd consumo-edit-shell"><input type="hidden" id="ce-key"><input type="hidden" id="ce-source"><div class="consumo-edit-summary"><div class="consumo-edit-card"><span class="consumo-edit-label">SKU</span><strong class="m" id="ce-sku">-</strong></div><div class="consumo-edit-card"><span class="consumo-edit-label">Producto</span><strong id="ce-desc">-</strong></div><div class="consumo-edit-card"><span class="consumo-edit-label">Stock actual</span><strong class="m" id="ce-stock">-</strong></div></div><div class="fr"><div class="fg"><label class="fl">Fecha *</label><input type="date" class="fi" id="ce-fecha"></div><div class="fg"><label class="fl">Cantidad *</label><input type="number" class="fi" id="ce-cantidad" min=".01" step=".01"></div></div><div class="fr"><div class="fg"><label class="fl">Solicitante</label><input type="text" class="fi" id="ce-sol" placeholder="Nombre del solicitante"></div><div class="fg"><label class="fl">OT / Proyecto</label><input type="text" class="fi" id="ce-ot" placeholder="Ej: OT-2025-001"></div></div><div class="fg" style="margin-bottom:0"><label class="fl">Observaciones</label><textarea class="ft" id="ce-obs" rows="4" placeholder="Detalle del consumo, trabajo ejecutado o notas internas"></textarea></div></div><div class="mft consumo-edit-actions"><button class="btn bs" onclick="closeConsumoEdit()">Cancelar</button><button class="btn bd" onclick="saveConsumoEdit()">Guardar cambios</button></div></div></div>
+
+<!-- MODAL OT -->
+<div class="mb" id="m-ot"><div class="mo"><div class="mh"><div><div class="mt" id="ot-modal-title">Nueva OT</div><div id="ot-num-display" style="font-size:10px;color:var(--t3);margin-top:2px">Nº OT: <span style="font-weight:700;color:var(--ac)" id="ot-num">-</span></div></div><button class="mx" onclick="cM('m-ot')">✕</button></div><div class="mbd"><div class="fr"><div class="fg"><label class="fl">Descripción *</label><input type="text" class="fi" id="ot-desc"></div><div class="fg"><label class="fl">Cliente</label><input type="text" class="fi" id="ot-cli"></div></div><div class="fr"><div class="fg"><label class="fl">Referencia</label><input type="text" class="fi" id="ot-ref"></div><div class="fg"><label class="fl">Código</label><input type="text" class="fi" id="ot-cod"></div></div><div class="fg"><label class="fl">Materiales</label><textarea class="ft" id="ot-mat"></textarea></div></div><div class="mft"><button class="btn bs" onclick="cM('m-ot')">Cancelar</button><button class="btn bp" onclick="saveOT()">Guardar</button></div></div></div>
+
+<!-- MODAL KARDEX -->
+<div class="mb" id="m-kardex"><div class="mo mo-lg"><div class="mh"><div><div class="mt" id="kx-t">Kardex</div><div style="font-size:10px;color:var(--t3)" id="kx-sub"></div></div><button class="mx" onclick="cM('m-kardex')">✕</button></div><div class="mbd" style="padding:0">
+  <div class="ts"><table><thead><tr><th>Fecha</th><th>Tipo</th><th style="text-align:right">Ingreso</th><th style="text-align:right">Egreso</th><th style="text-align:right">Saldo</th><th>Referencia</th><th>Detalle</th><th style="width:90px"></th></tr></thead><tbody id="kx-b"></tbody></table></div>
+  <div class="pag" id="kx-p"></div>
+</div></div></div>
+
+<!-- MODAL COMPONENTE -->
+<div class="mb" id="m-comp"><div class="mo"><div class="mh"><div class="mt" id="comp-modal-title">Nuevo Componente</div><button class="mx" onclick="cM('m-comp')">✕</button></div><div class="mbd"><div class="fg"><label class="fl">Nombre *</label><input type="text" class="fi" id="comp-nom"></div><div class="fr"><div class="fg"><label class="fl">Código</label><input type="text" class="fi" id="comp-cod"></div></div><div class="fg"><label class="fl">Descripción</label><textarea class="ft" id="comp-desc"></textarea></div></div><div class="mft"><button class="btn bs" onclick="cM('m-comp')">Cancelar</button><button class="btn bp" onclick="saveComp()">Guardar</button></div></div></div>
+
+<!-- MODAL MATERIALES DE COMPONENTE -->
+<div class="mb" id="m-comp-mat"><div class="mo mo-lg"><div class="mh" style="background:var(--bg1)"><div><div class="mt" id="cm-title">Materiales del Componente</div><div style="font-size:10px;color:var(--t3);margin-top:2px">ID: <span id="cm-comp-id">-</span> • <span id="cm-comp-nombre">-</span></div></div><div style="display:flex;gap:6px"><button class="btn bs bsm" onclick="printCompMateriales()" title="Imprimir lista de materiales">🖨️ Imprimir</button><button class="mx" onclick="cM('m-comp-mat')">✕</button></div></div><div class="mbd" style="padding:0">
+  <div style="padding:14px 16px;border-bottom:1px solid var(--bd);background:var(--bg2)">
+    <div style="font-size:10px;font-weight:600;color:var(--ac);text-transform:uppercase;letter-spacing:1px;font-family:'IBM Plex Mono',monospace;margin-bottom:10px">■ Agregar Material</div>
+    <div style="background:var(--bg1);border:1px dashed var(--bd2);border-radius:6px;padding:10px">
+      <div class="fr-add" style="display:grid;grid-template-columns:2.5fr 1fr auto;gap:6px;align-items:end">
+        <div class="fg sku-w" style="margin:0"><label class="fl">Producto</label><input type="text" class="fi" id="cm-asku" oninput="skuS(this,'cm-add')" autocomplete="off" placeholder="SKU o nombre..."><div class="sku-dd" id="cm-add-dd"></div><input type="hidden" id="cm-add-v"><input type="hidden" id="cm-add-n"></div>
+        <div class="fg" style="margin:0"><label class="fl">Cantidad *</label><input type="number" class="fi" id="cm-aq" min=".01" step=".01" value="1"></div>
+        <button class="btn bp" onclick="addCompMat()" style="height:33px">+ Agregar</button>
+      </div>
+      <div id="cm-info" style="font-size:10px;color:var(--t3);margin-top:4px"></div>
+    </div>
+  </div>
+  <div style="padding:14px 16px;border-bottom:1px solid var(--bd)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="font-size:10px;font-weight:600;color:var(--ac);text-transform:uppercase;letter-spacing:1px;font-family:'IBM Plex Mono',monospace">■ Lista de Materiales</div>
+      <div style="font-size:10px;color:var(--t3)">Total items: <span id="cm-total-items" style="font-weight:700;color:var(--t1)">0</span></div>
+    </div>
+    <div class="table-scroll" style="border:1px solid var(--bd);border-radius:6px"><table class="comp-mat-table"><thead><tr style="background:var(--bg3)"><th style="width:60px;text-align:center">ITEM#</th><th style="text-align:left">DESCRIPCIÓN</th><th style="width:100px;text-align:center">QTY</th><th style="width:60px"></th></tr></thead><tbody id="cm-body"><tr><td colspan="4" style="text-align:center;padding:24px;color:var(--t3);font-size:11px">Sin materiales</td></tr></tbody></table></div>
+  </div>
+  <div style="padding:12px 16px;background:var(--bg1);display:flex;justify-content:flex-end">
+    <button class="btn bp" onclick="cM('m-comp-mat')">Cerrar</button>
+  </div>
+</div></div></div>
+
+<!-- MODAL ANÁLISIS DE STOCK -->
+<div class="mb" id="m-stock-analysis"><div class="mo mo-lg"><div class="mh"><div><div class="mt" id="sa-title">Análisis de Stock</div></div><button class="mx" onclick="cM('m-stock-analysis')">✕</button></div><div class="mbd" style="padding:0">
+  <div style="padding:14px 16px;border-bottom:1px solid var(--bd);background:var(--bg2)">
+    <div style="font-size:12px;font-weight:600" id="sa-status">-</div>
+  </div>
+  <div class="ts"><table><thead><tr><th>#</th><th>SKU</th><th>Material</th><th>Necesario</th><th>Disponible</th><th>Estado</th></tr></thead><tbody id="sa-body"></tbody></table></div>
+  <div style="padding:12px 16px;background:var(--bg1);display:flex;justify-content:flex-end">
+    <button class="btn bp" onclick="cM('m-stock-analysis')">Cerrar</button>
+  </div>
+</div></div></div>
+
+
+    <!-- ============================================================
+         AUDITORIAS DE INVENTARIO — Secciones
+         ============================================================ -->
+
+    <!-- AUDITORIAS — DASHBOARD -->
+    <section class="pg aud-page" id="p-auditorias">
+      <div class="phdr aud-header">
+        <div><div class="pt">Auditorias de Inventario</div><div class="pd">Control de rotacion, inventarios semanal y mensual</div></div>
+        <div class="aud-header-actions">
+          <button class="btn bs" onclick="Auditorias.recalcularABC()">&#8635; Recalcular ABC</button>
+          <button class="btn bp" onclick="Auditorias.crearSesionSpot()">+ Auditoria Spot</button>
+        </div>
+      </div>
+      <div id="aud-stats" class="aud-stats mb20">
+        <div class="card aud-stat-card"><div class="aud-stat-label">Total Sesiones</div><div id="aud-stat-sesiones" class="aud-stat-value aud-accent">0</div></div>
+        <div class="card aud-stat-card"><div class="aud-stat-label">Completadas</div><div id="aud-stat-completadas" class="aud-stat-value aud-ok">0</div></div>
+        <div class="card aud-stat-card"><div class="aud-stat-label">En Progreso</div><div id="aud-stat-pendientes" class="aud-stat-value aud-warn">0</div></div>
+        <div class="card aud-stat-card"><div class="aud-stat-label">Ajustes Aplicados</div><div id="aud-stat-ajustes" class="aud-stat-value aud-danger">0</div></div>
+      </div>
+      <div class="aud-main-grid mb20">
+        <div class="card aud-card">
+          <div class="sec">Clasificacion ABC <span class="aud-sec-note">Valor de consumo historico</span></div>
+          <div class="aud-abc-grid">
+            <div class="aud-abc-card aud-abc-a">
+              <div class="aud-abc-value" id="aud-abc-A">0</div>
+              <div class="aud-abc-label">Clase A</div>
+              <div class="aud-abc-note">80% del valor • cada 14d</div>
+            </div>
+            <div class="aud-abc-card aud-abc-b">
+              <div class="aud-abc-value" id="aud-abc-B">0</div>
+              <div class="aud-abc-label">Clase B</div>
+              <div class="aud-abc-note">15% del valor • cada 30d</div>
+            </div>
+            <div class="aud-abc-card aud-abc-c">
+              <div class="aud-abc-value" id="aud-abc-C">0</div>
+              <div class="aud-abc-label">Clase C</div>
+              <div class="aud-abc-note">5% del valor • cada 90d</div>
+            </div>
+          </div>
+          <div class="aud-foot-note">&#8987; Pendientes de conteo hoy: <strong id="aud-stat-vencidos" class="aud-danger">0</strong></div>
+        </div>
+        <div class="card aud-card aud-card-table">
+          <div class="sec">Proximas Auditorias Programadas</div>
+          <div class="tw aud-table-shell">
+            <div class="ts"><table><thead><tr><th>Plan</th><th>Tipo</th><th>Ciclo</th><th>Proxima fecha</th><th>Accion</th></tr></thead><tbody id="aud-proximas-tbody"><tr><td colspan="5" class="empty-label">Cargando...</td></tr></tbody></table></div>
+          </div>
+        </div>
+      </div>
+      <div class="tw aud-panel">
+        <div class="th aud-table-head"><div class="sec aud-sec-reset">Historial Mensual</div></div>
+        <div class="ts"><table><thead><tr><th>Mes</th><th>Sesiones</th><th>Items con diferencia</th><th>Ajustes aplicados</th></tr></thead><tbody id="aud-historial-tbody"><tr><td colspan="4" class="empty-label">Sin historial</td></tr></tbody></table></div>
+      </div>
+    </section>
+
+    <!-- AUDITORIAS — SESIONES -->
+    <section class="pg aud-page" id="p-auditorias-sesiones">
+      <div class="phdr aud-header">
+        <div><div class="pt">Sesiones de Auditoria</div><div class="pd">Historial y gestion de conteos</div></div>
+        <div class="aud-header-actions">
+          <button class="btn bs bsm" onclick="Auditorias.iniciarDesdePanel('rotativo')">&#8635; Rotativa</button>
+          <button class="btn bs bsm" onclick="Auditorias.iniciarDesdePanel('semanal')">&#128197; Semanal</button>
+          <button class="btn bs bsm" onclick="Auditorias.iniciarDesdePanel('mensual')">&#128198; Mensual</button>
+          <button class="btn bp" onclick="Auditorias.crearSesionSpot()">+ Spot</button>
+        </div>
+      </div>
+      <div class="tw aud-panel">
+        <div class="th aud-toolbar">
+          <div class="aud-filter-row">
+            <select class="flt" id="aud-filtro-tipo" onchange="Auditorias.cargarSesiones(1)">
+              <option value="">Todos los tipos</option>
+              <option value="rotativo">Rotativo</option>
+              <option value="semanal">Semanal</option>
+              <option value="mensual">Mensual</option>
+              <option value="spot">Spot</option>
+            </select>
+            <select class="flt" id="aud-filtro-estado" onchange="Auditorias.cargarSesiones(1)">
+              <option value="">Todos los estados</option>
+              <option value="pendiente">Pendiente</option>
+              <option value="en_progreso">En progreso</option>
+              <option value="completada">Completada</option>
+              <option value="cancelada">Cancelada</option>
+            </select>
+          </div>
+        </div>
+        <div class="ts"><table><thead><tr><th>#</th><th>Tipo</th><th>Estado</th><th>Periodo</th><th>Ciclo</th><th>Progreso</th><th>Diferencias</th><th>Auditor</th><th>Acciones</th></tr></thead><tbody id="aud-sesiones-tbody"><tr><td colspan="9" class="empty-label">Cargando...</td></tr></tbody></table></div>
+        <div id="aud-sesiones-pag"></div>
+      </div>
+    </section>
+
+    <!-- AUDITORIAS — CLASIFICACION ABC -->
+    <section class="pg aud-page" id="p-auditorias-abc">
+      <div class="phdr aud-header">
+        <div><div class="pt">Clasificacion ABC</div><div class="pd">Priorizacion del inventario por valor de consumo</div></div>
+        <button class="btn bp" onclick="Auditorias.recalcularABC()">&#8635; Recalcular</button>
+      </div>
+      <div class="tw aud-panel">
+        <div class="th aud-toolbar">
+          <div class="aud-filter-row">
+            <input type="text" class="flt" placeholder="SKU o nombre..." id="aud-abc-filtro-buscar" style="width:200px" oninput="dbSearch('aud-abc',function(){Auditorias.cargarTablaABC(1)})" onkeyup="if(event.key==='Enter') Auditorias.cargarTablaABC(1)">
+            <select class="flt" id="aud-abc-filtro-clase" onchange="Auditorias.cargarTablaABC(1)">
+              <option value="">Todas las clases</option>
+              <option value="A">Clase A (alto valor)</option>
+              <option value="B">Clase B (medio valor)</option>
+              <option value="C">Clase C (bajo valor)</option>
+            </select>
+            <button class="btn bsm bs" onclick="Auditorias.cargarTablaABC(1)">Buscar</button>
+            <button class="btn bsm bs" onclick="clearSectionFilters(['aud-abc-filtro-buscar','aud-abc-filtro-clase'], function(){Auditorias.cargarTablaABC(1)})">Limpiar</button>
+          </div>
+        </div>
+        <div class="ts"><table><thead><tr><th>SKU</th><th>Nombre</th><th>Clase</th><th>Valor Anual</th><th>% Acum.</th><th>Frec.</th><th>Ultimo conteo</th><th>Proximo conteo</th><th>Stock</th></tr></thead><tbody id="aud-abc-tbody"><tr><td colspan="9" class="empty-label">Cargando...</td></tr></tbody></table></div>
+        <div id="aud-abc-pag"></div>
+      </div>
+    </section>
+
+    <!-- AUDITORIAS — PLANES -->
+    <section class="pg aud-page" id="p-auditorias-planes">
+      <div class="phdr aud-header">
+        <div><div class="pt">Planes de Auditoria</div><div class="pd">Configuracion de ciclos y rotacion</div></div>
+        <button class="btn bp" onclick="Auditorias.abrirModalNuevoPlan()">+ Nuevo Plan</button>
+      </div>
+      <div class="tw aud-panel">
+        <div class="ts"><table><thead><tr><th>Nombre</th><th>Tipo</th><th>Ciclo</th><th>Proxima fecha</th><th>Categoria</th><th>Clase ABC</th><th>Activo</th><th>Accion</th></tr></thead><tbody id="aud-planes-tbody"><tr><td colspan="8" class="empty-label">Cargando...</td></tr></tbody></table></div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<div class="toast-c" id="tc"></div>
+
+<!-- MODALES AUDITORIAS -->
+
+<!-- Modal conteo fisico -->
+<div class="mb" id="modal-aud-conteo">
+  <div class="mo mo-lg" style="max-width:860px;width:96vw">
+    <div class="mh">
+      <div>
+        <div class="mt" id="maud-titulo">Conteo de Auditoria</div>
+        <div style="font-size:11px;color:var(--t3);margin-top:2px" id="maud-prog"></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="file" id="maud-file-csv" accept=".csv,text/csv" style="display:none" onchange="Auditorias.cargarConteoDesdeArchivo(event)">
+        <button class="btn bsm bs" id="maud-btn-exportar" onclick="Auditorias.descargarPlantillaSesionActiva()">⬇ Plantilla CSV</button>
+        <button class="btn bsm bs" id="maud-btn-importar" onclick="Auditorias.abrirCargaConteoSesionActiva()">⬆ Subir CSV</button>
+        <button class="btn bsm bg" id="maud-btn-ajustar" onclick="Auditorias.aplicarAjustesSesionActiva()">&#10003; Aplicar ajustes</button>
+        <button class="mx" onclick="Auditorias.cerrarConteo()">&#x2715;</button>
+      </div>
+    </div>
+    <div class="mbd" style="padding:0">
+      <div style="padding:8px 16px;background:var(--bg2);border-bottom:1px solid var(--bd);font-size:11px;color:var(--t3)">
+        &#128204; Ingresa la cantidad <strong>fisica contada</strong>. Los ajustes actualizan el stock del inventario.
+      </div>
+      <div class="ts" style="max-height:60vh;overflow-y:auto">
+        <table>
+          <thead style="position:sticky;top:0;background:var(--bg2);z-index:2">
+            <tr><th style="width:50px">Clase</th><th>SKU</th><th>Nombre</th><th style="text-align:right">Sistema</th><th style="text-align:right;width:110px">Contado</th><th style="text-align:right">Diferencia</th><th style="width:40px;text-align:center">&#10003;</th></tr>
+          </thead>
+          <tbody id="maud-conteo-tbody"><tr><td colspan="7" class="empty-label">Cargando...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="mft">
+      <button class="btn bs" onclick="Auditorias.cerrarConteo()">Cerrar</button>
+      <button class="btn bg" onclick="Auditorias.aplicarAjustesSesionActiva()">&#10003; Aplicar todos los ajustes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal nuevo plan -->
+<div class="mb" id="modal-aud-nuevo-plan">
+  <div class="mo" style="max-width:480px">
+    <div class="mh">
+      <div class="mt">Nuevo Plan de Auditoria</div>
+      <button class="mx" onclick="Auditorias.cerrarModalNuevoPlan()">&#x2715;</button>
+    </div>
+    <div class="mbd">
+      <div class="fg"><label class="fl">Nombre del plan *</label><input type="text" class="fi" id="np-nombre" placeholder="Ej: Inventario Rotativo Bodega"></div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Tipo *</label><select class="fs" id="np-tipo" onchange="document.getElementById('np-ciclos-row').style.display=this.value==='rotativo'?'flex':'none'"><option value="rotativo">Rotativo (ciclos)</option><option value="semanal">Semanal</option><option value="mensual">Mensual</option><option value="spot">Spot / Libre</option></select></div>
+        <div class="fg" id="np-ciclos-row"><label class="fl">N&#176; ciclos</label><input type="number" class="fi" id="np-ciclos" min="2" max="12" value="4"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Filtro categoria</label><input type="text" class="fi" id="np-cat" placeholder="Dejar vacio = todos"></div>
+        <div class="fg"><label class="fl">Filtro clase ABC</label><select class="fs" id="np-clase"><option value="">A + B + C</option><option value="A">Solo Clase A</option><option value="B">Solo Clase B</option><option value="C">Solo Clase C</option></select></div>
+      </div>
+      <div class="fg"><label class="fl">Proxima ejecucion</label><input type="date" class="fi" id="np-fecha"></div>
+    </div>
+    <div class="mft">
+      <button class="btn bs" onclick="Auditorias.cerrarModalNuevoPlan()">Cancelar</button>
+      <button class="btn bg" onclick="Auditorias.guardarNuevoPlan()">Crear Plan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODALES PAÑOL -->
+
+<!-- MODAL EMPLEADO -->
+<div class="mb" id="m-empleado"><div class="mo"><div class="mh"><div class="mt" id="memp-t">Nuevo Empleado</div><button class="mx" onclick="cM('m-empleado')">✕</button></div><div class="mbd"><input type="hidden" id="memp-id"><div class="fr"><div class="fg"><label class="fl">Nº Empleado *</label><input type="text" class="fi" id="memp-num" placeholder="Ej: EMP001"></div><div class="fg"><label class="fl">Nombre Completo *</label><input type="text" class="fi" id="memp-nom"></div></div><div class="fr"><div class="fg"><label class="fl">RUT</label><input type="text" class="fi" id="memp-rut" placeholder="12345678-9"></div><div class="fg"><label class="fl">Email</label><input type="email" class="fi" id="memp-email"></div></div><div class="fr"><div class="fg"><label class="fl">Cargo</label><input type="text" class="fi" id="memp-cargo" list="cargo-list"><datalist id="cargo-list"><option>Técnico</option><option>Operario</option><option>Supervisor</option><option>Jefe de Mantención</option><option>Mecánico</option><option>Electricista</option></datalist></div><div class="fg"><label class="fl">Departamento</label><input type="text" class="fi" id="memp-dept" list="dept-list"><datalist id="dept-list"><option>Mantención</option><option>Producción</option><option>Electricidad</option><option>Mecánica</option><option>Bodegas</option></datalist></div></div><div class="fr"><div class="fg"><label class="fl">Teléfono</label><input type="tel" class="fi" id="memp-tel"></div><div class="fg"><label class="fl">Estado</label><select class="fs" id="memp-activo"><option value="1">Activo</option><option value="0">Inactivo</option></select></div></div></div><div class="mft" style="display:flex;gap:8px;align-items:center"><button class="btn bs" onclick="cM('m-empleado')">Cancelar</button><button class="btn no" id="memp-del" style="display:none" onclick="deleteEmpleado()">Eliminar</button><button class="btn bg" id="memp-save" onclick="saveEmpleado()">Guardar</button></div></div></div>
+
+<!-- MODAL HERRAMIENTA -->
+<div class="mb" id="m-herramienta"><div class="mo"><div class="mh"><div class="mt" id="mherr-t">Nueva Herramienta</div><button class="mx" onclick="cM('m-herramienta')">✕</button></div><div class="mbd"><input type="hidden" id="mherr-id"><div class="fr"><div class="fg"><label class="fl">SKU *</label><input type="text" class="fi" id="mherr-sku" placeholder="Ej: HERR001"></div><div class="fg"><label class="fl">Nombre *</label><input type="text" class="fi" id="mherr-nom"></div></div><div class="fr"><div class="fg"><label class="fl">Categoría</label><input type="text" class="fi" id="mherr-cat" list="herr-cat-list"><datalist id="herr-cat-list"><option>Herramientas Manuales</option><option>Herramientas Eléctricas</option><option>Instrumentos de Medición</option><option>Equipos de Seguridad</option><option>Herramientas de Corte</option></datalist></div><div class="fg"><label class="fl">Marca</label><input type="text" class="fi" id="mherr-marca"></div></div><div class="fr"><div class="fg"><label class="fl">Modelo</label><input type="text" class="fi" id="mherr-modelo"></div><div class="fg"><label class="fl">Nº Serie</label><input type="text" class="fi" id="mherr-serie"></div></div><div class="fr"><div class="fg"><label class="fl">Cantidad Total *</label><input type="number" class="fi" id="mherr-cant" min="0" step="1" value="1"></div><div class="fg"><label class="fl">Ubicación</label><input type="text" class="fi" id="mherr-ubi" placeholder="Ej: Pañol A-12"></div></div><div class="fr"><div class="fg"><label class="fl">Estado</label><select class="fs" id="mherr-estado"><option value="operativa">Operativa</option><option value="mantenimiento">Mantenimiento</option><option value="defectuosa">Defectuosa</option><option value="baja">Baja</option></select></div><div class="fg"><label class="fl">Valor Unitario</label><input type="number" class="fi" id="mherr-valor" min="0" step="1" value="0"></div></div><div class="fg"><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="mherr-req-calib" onchange="toggleCalibracionFields()"> <span class="fl" style="margin:0">Requiere Calibración</span></label></div><div id="calib-fields" style="display:none"><div class="fr"><div class="fg"><label class="fl">Frecuencia Calibración (días)</label><input type="number" class="fi" id="mherr-frec-calib" min="1" step="1" placeholder="Ej: 365"></div><div class="fg"><label class="fl">Última Calibración</label><input type="date" class="fi" id="mherr-ult-calib"></div></div></div><div class="fg"><label class="fl">Descripción</label><textarea class="ft" id="mherr-desc" rows="2"></textarea></div></div><div class="mft" style="display:flex;gap:8px;align-items:center"><button class="btn bs" onclick="cM('m-herramienta')">Cancelar</button><button class="btn no" id="mherr-del" style="display:none" onclick="deleteHerramienta()">Eliminar</button><button class="btn bp" id="mherr-save" onclick="saveHerramienta()">Guardar</button></div></div></div>
+
+<!-- MODAL CHECKOUT (PRÉSTAMO) -->
+<div class="mb" id="m-checkout"><div class="mo mo-lg"><div class="mh" style="background:var(--bg1)"><div><div class="mt">📤 Préstamo de Herramientas</div><div style="font-size:10px;color:var(--t3);margin-top:2px">Registra salida de herramientas a empleado</div></div><button class="mx" onclick="closeMCheckout()">✕</button></div><div class="mbd" style="padding:0"><div style="padding:14px 16px;border-bottom:1px solid var(--bd);background:var(--bg2)"><div style="font-size:10px;font-weight:600;color:var(--ok);text-transform:uppercase;letter-spacing:1px;font-family:'IBM Plex Mono',monospace;margin-bottom:10px">■ Datos del Préstamo</div><div class="fr3" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div class="fg" style="margin:0"><label class="fl">Fecha *</label><input type="date" class="fi" id="mco-fecha"></div><div class="fg" style="margin:0"><label class="fl">Empleado *</label><input type="text" class="fi" id="mco-emp" list="emp-list" placeholder="Nº empleado o nombre"><datalist id="emp-list"></datalist></div></div><div style="margin-top:8px"><div class="fg" style="margin:0"><label class="fl">Observaciones</label><input type="text" class="fi" id="mco-obs" placeholder="Proyecto, ubicación, etc."></div></div></div><div style="padding:14px 16px;border-bottom:1px solid var(--bd)"><div style="display:flex;justify-content:space-between;margin-bottom:10px"><div style="font-size:10px;font-weight:600;color:var(--ok);text-transform:uppercase;letter-spacing:1px;font-family:'IBM Plex Mono',monospace">■ Herramientas a Prestar</div><div style="font-size:10px;color:var(--t3)" id="mco-cnt">0 herramientas</div></div><div style="background:var(--bg1);border:1px dashed var(--bd2);border-radius:6px;padding:10px;margin-bottom:10px"><div class="fr-add" style="display:grid;grid-template-columns:3fr 1fr auto;gap:6px;align-items:end"><div class="fg" style="margin:0"><label class="fl">Herramienta</label><input type="text" class="fi" id="mco-herr" list="herr-disp-list" placeholder="SKU o nombre"><datalist id="herr-disp-list"></datalist><input type="hidden" id="mco-herr-id"><input type="hidden" id="mco-herr-disp"></div><div class="fg" style="margin:0"><label class="fl">Cantidad *</label><input type="number" class="fi" id="mco-cant" min="1" step="1" value="1"></div><button class="btn bg" onclick="addCheckoutItem()" style="height:33px">+ Agregar</button></div><div id="mco-info" style="font-size:10px;color:var(--t3);margin-top:4px"></div></div><div class="table-scroll" style="border:1px solid var(--bd);border-radius:6px"><table><thead><tr><th>#</th><th>SKU</th><th>Herramienta</th><th style="text-align:right">Disponible</th><th style="text-align:right">Cantidad</th><th></th></tr></thead><tbody id="mco-body"><tr><td colspan="6" style="text-align:center;padding:24px;color:var(--t3);font-size:11px">Agrega herramientas arriba</td></tr></tbody></table></div></div><div style="padding:12px 16px;background:var(--bg1);display:flex;justify-content:space-between;align-items:center"><div style="display:flex;gap:20px"><div><div style="font-size:9px;color:var(--t3);text-transform:uppercase;font-family:'IBM Plex Mono',monospace">Items</div><div class="m" style="font-size:18px;font-weight:700" id="mco-ti">0</div></div><div><div style="font-size:9px;color:var(--t3);text-transform:uppercase;font-family:'IBM Plex Mono',monospace">Total Herramientas</div><div class="m" style="font-size:18px;font-weight:700;color:var(--ok)" id="mco-tu">0</div></div></div><div style="display:flex;gap:6px"><button class="btn bs" onclick="closeMCheckout()">Cancelar</button><button class="btn bg" onclick="saveCheckout()" style="padding:9px 20px;font-size:12px;font-weight:600">✓ Registrar Préstamo</button></div></div></div></div></div>
+
+<!-- MODAL CHECKIN (DEVOLUCIÓN) -->
+<div class="mb" id="m-checkin"><div class="mo"><div class="mh"><div class="mt">📥 Devolución de Herramientas</div><button class="mx" onclick="cM('m-checkin')">✕</button></div><div class="mbd"><input type="hidden" id="mci-mov-id"><div class="fg"><label class="fl">Herramienta</label><input type="text" class="fi" id="mci-herr" readonly></div><div class="fr"><div class="fg"><label class="fl">Empleado</label><input type="text" class="fi" id="mci-emp" readonly></div><div class="fg"><label class="fl">Cantidad a devolver</label><input type="number" class="fi" id="mci-cant" min="1"></div></div><div class="fr"><div class="fg"><label class="fl">Fecha Devolución *</label><input type="date" class="fi" id="mci-fecha"></div><div class="fg"><label class="fl">Estado al Devolver *</label><select class="fs" id="mci-estado"><option value="operativa">Operativa</option><option value="mantenimiento">Requiere Mantenimiento</option><option value="defectuosa">Defectuosa</option></select></div></div><div class="fg"><label class="fl">Observaciones</label><textarea class="ft" id="mci-obs" rows="2" placeholder="Condición, notas, daños, etc."></textarea></div></div><div class="mft"><button class="btn bs" onclick="cM('m-checkin')">Cancelar</button><button class="btn bg" onclick="saveCheckin()">Registrar Devolución</button></div></div></div>
+
+<!-- MODAL MANTENIMIENTO -->
+<div class="mb" id="m-mant"><div class="mo"><div class="mh"><div class="mt">🔧 Registrar Mantenimiento</div><button class="mx" onclick="cM('m-mant')">✕</button></div><div class="mbd"><input type="hidden" id="mmant-herr-id"><div class="fg"><label class="fl">Herramienta</label><input type="text" class="fi" id="mmant-herr" readonly></div><div class="fr"><div class="fg"><label class="fl">Tipo de Mantenimiento *</label><select class="fs" id="mmant-tipo"><option value="preventivo">Preventivo</option><option value="correctivo">Correctivo</option><option value="calibracion">Calibración</option></select></div><div class="fg"><label class="fl">Fecha *</label><input type="date" class="fi" id="mmant-fecha"></div></div><div class="fg"><label class="fl">Descripción *</label><textarea class="ft" id="mmant-desc" rows="2" placeholder="Detalle del mantenimiento realizado"></textarea></div><div class="fr"><div class="fg"><label class="fl">Costo</label><input type="number" class="fi" id="mmant-costo" min="0" step="1" value="0"></div><div class="fg"><label class="fl">Realizado Por</label><input type="text" class="fi" id="mmant-realizado" placeholder="Técnico o empresa"></div></div><div class="fg"><label class="fl">Observaciones</label><textarea class="ft" id="mmant-obs" rows="2"></textarea></div></div><div class="mft"><button class="btn bs" onclick="cM('m-mant')">Cancelar</button><button class="btn bp" onclick="saveMantenimiento()">Registrar Mantenimiento</button></div></div></div>
+
+<!-- MODAL KARDEX HERRAMIENTA -->
+<div class="mb" id="m-kardex-herr"><div class="mo mo-lg"><div class="mh"><div><div class="mt">Kardex de Herramienta</div><div style="font-size:10px;color:var(--t3)" id="mkh-sub"></div></div><button class="mx" onclick="cM('m-kardex-herr')">✕</button></div><div class="mbd" style="padding:0"><div class="ts"><div class="kardex-timeline" id="mkh-timeline"><div style="text-align:center;padding:40px;color:var(--t3)">Cargando...</div></div></div></div></div></div>
+
+<!-- MODAL PLANES MANTENIMIENTO -->
+<div class="mb" id="m-planes-mant"><div class="mo mo-lg"><div class="mh"><div class="mt">📋 Planes de Mantenimiento</div><button class="mx" onclick="cM('m-planes-mant')">✕</button></div><div class="mbd" style="padding:0"><div style="padding:14px 16px;border-bottom:1px solid var(--bd);background:var(--bg2)"><div style="font-size:10px;font-weight:600;color:var(--ac);text-transform:uppercase;letter-spacing:1px;font-family:'IBM Plex Mono',monospace;margin-bottom:10px">■ Crear Plan</div><div style="background:var(--bg1);border:1px dashed var(--bd2);border-radius:6px;padding:10px"><div class="fr-add" style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:6px;align-items:end"><div class="fg" style="margin:0"><label class="fl">Herramienta</label><input type="text" class="fi" id="mpm-herr" list="herr-all-list" placeholder="SKU o nombre"><datalist id="herr-all-list"></datalist><input type="hidden" id="mpm-herr-id"></div><div class="fg" style="margin:0"><label class="fl">Tipo</label><select class="fs" id="mpm-tipo"><option value="preventivo">Preventivo</option><option value="calibracion">Calibración</option></select></div><div class="fg" style="margin:0"><label class="fl">Frecuencia (días)</label><input type="number" class="fi" id="mpm-frec" min="1" value="30"></div><button class="btn bp" onclick="createPlan()" style="height:33px">+ Crear</button></div></div></div><div class="ts"><table><thead><tr><th>Herramienta</th><th>Tipo</th><th>Frecuencia</th><th>Último Mant.</th><th>Próximo Mant.</th><th>Estado</th><th style="width:80px">Acciones</th></tr></thead><tbody id="mpm-body"><tr><td colspan="7" style="text-align:center;padding:24px;color:var(--t3)">Cargando...</td></tr></tbody></table></div></div></div></div>
+
+<!-- MODAL INFO MANTENIMIENTO -->
+<div class="mb" id="m-mant-info"><div class="mo" style="max-width:480px"><div class="mh"><div><div class="mt">📝 Información de Mantenimiento</div><div class="mant-info-sub" id="mant-info-nombre" style="font-size:11px;color:var(--t3);margin-top:2px"></div></div><button class="mx" onclick="cM('m-mant-info')">&times;</button></div><div class="mbd"><input type="hidden" id="mant-info-id"><div class="fg"><label class="fl">Información adicional</label><textarea class="ft" id="mant-info-text" rows="4" placeholder="Describe el motivo, observaciones o informe técnico..."></textarea></div></div><div class="mft"><button class="btn bs" onclick="cM('m-mant-info')">Cancelar</button><button class="btn bp" onclick="saveMantInfo()">Guardar</button></div></div></div>
+
+<!-- modal genérico para ampliación de widgets -->
+<div class="mb" id="m-dash"><div class="mo mo-lg"><div class="mh"><div class="mt" id="md-title"></div><button class="mx" onclick="cM('m-dash')">✕</button></div><div class="mbd" id="md-body"></div></div></div>
+
+<!-- MODAL INGRESO BOCINAS (SELLOS INDEPENDIENTE) -->
+<div class="mb" id="m-sellos-ingreso">
+  <div class="mo" style="max-width:760px">
+    <div class="mh">
+      <div>
+        <div class="mt">+ Llegada de Bocinas</div>
+        <div style="font-size:11px;color:var(--t3);margin-top:2px">Registro independiente, guiado paso a paso</div>
+      </div>
+      <button class="mx" onclick="closeSelloIngresoModal()">✕</button>
+    </div>
+    <div class="mbd">
+      <div class="sellos-step-card">
+        <div class="sellos-step-title">Ingreso rápido (solo lo obligatorio)</div>
+        <div style="font-size:12px;color:var(--t3);margin-bottom:8px">Si compraste algo nuevo y no existe en sistema, usa el botón “Crear insumo nuevo”.</div>
+        <div class="fr">
+          <div class="fg"><label class="fl">Fecha *</label><input type="date" class="fi" id="si-fecha"></div>
+        </div>
+      </div>
+
+      <div class="sellos-step-card">
+        <div class="sellos-step-title">Datos de la bocina</div>
+        <div class="fr">
+          <div class="fg">
+            <label class="fl">Material *</label>
+            <select class="fs" id="si-material" onchange="updateSelloMaterialHelp()">
+              <option value="">Seleccione...</option>
+              <option>BOCINA</option>
+              <option>FPM</option>
+              <option>H-NBR</option>
+              <option>HPU</option>
+              <option>NBR</option>
+              <option>H-NBR 90 BLACK</option>
+              <option>POM</option>
+              <option>PTFE I</option>
+              <option>PTFE II</option>
+              <option>PTFE D46</option>
+              <option>PTFE REIN</option>
+              <option>OTRO (NUEVO)</option>
+            </select>
+            <div class="fg" id="si-material-otro-wrap" style="display:none;margin-top:8px">
+              <label class="fl">Escribe material nuevo *</label>
+              <input type="text" class="fi" id="si-material-otro" placeholder="Ej: TPU 95A">
+            </div>
+            <div class="sellos-quick-materials" id="si-material-quick">
+              <button type="button" class="btn bs" onclick="selectSelloMaterial('FPM')">FPM</button>
+              <button type="button" class="btn bs" onclick="selectSelloMaterial('H-NBR')">H-NBR</button>
+              <button type="button" class="btn bs" onclick="selectSelloMaterial('NBR')">NBR</button>
+              <button type="button" class="btn bs" onclick="selectSelloMaterial('POM')">POM</button>
+              <button type="button" class="btn bs" onclick="selectSelloMaterial('PTFE I')">PTFE I</button>
+            </div>
+          </div>
+          <div class="fg" style="display:flex;align-items:flex-end">
+            <button type="button" class="btn bs" style="width:100%" onclick="openNuevoInsumoDesdeSellos()">+ Crear insumo nuevo</button>
+          </div>
+        </div>
+
+        <div class="sellos-material-help" id="si-material-help">
+          <div class="material-name" id="si-material-fullname">Seleccione un material para ver su nombre completo.</div>
+          <div class="material-desc" id="si-material-desc">Aquí aparecerá para qué sirve y cuándo usarlo.</div>
+        </div>
+
+        <div class="fr">
+          <div class="fg"><label class="fl">Medida interna *</label><input type="number" class="fi" id="si-mi" min="0" step="1" placeholder="Ej: 040"></div>
+          <div class="fg"><label class="fl">Medida externa *</label><input type="number" class="fi" id="si-me" min="0" step="1" placeholder="Ej: 068"></div>
+        </div>
+        <div class="fr">
+          <div class="fg"><label class="fl">Largo nominal (mm) *</label><input type="number" class="fi" id="si-largo" min="0.01" step="0.01" value="150"></div>
+          <div class="fg"><label class="fl">Cantidad de bocinas *</label><input type="number" class="fi" id="si-cantidad" min="1" step="1" value="1"></div>
+        </div>
+      </div>
+
+      <details class="sellos-step-card sellos-advanced-box">
+        <summary class="sellos-step-title" style="cursor:pointer">Opciones avanzadas (opcional)</summary>
+        <div class="fr" style="margin-top:8px">
+          <div class="fg"><label class="fl">Referencia (guía/factura)</label><input type="text" class="fi" id="si-doc" placeholder="Opcional"></div>
+          <div class="fg"><label class="fl">SKU proveedor</label><input type="text" class="fi" id="si-sku" placeholder="Opcional"></div>
+        </div>
+        <div class="fg" style="margin-top:8px"><label class="fl">Observaciones</label><input type="text" class="fi" id="si-obs" placeholder="Opcional"></div>
+        <div class="fg" style="margin:10px 0 0 0">
+          <label class="fl">Packing list (carga masiva)</label>
+          <textarea class="ft" id="si-packing" rows="5" placeholder="Formato por línea: SKU;DESCRIPCION;CANTIDAD&#10;Ej: 40002700320150;POM 270 x 320 x 155 mm;10"></textarea>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+            <button class="btn bs" onclick="saveSelloIngresoPackingList()">Cargar packing list</button>
+            <span style="font-size:11px;color:var(--t3)">Si cargas packing list, se crean todas las bocinas NCB por línea.</span>
+          </div>
+        </div>
+      </details>
+
+      <div id="si-info" style="font-size:11px;color:var(--t3)">Se generará un código interno NCB único por cada unidad.</div>
+    </div>
+    <div class="mft">
+      <button class="btn bs" onclick="closeSelloIngresoModal()">Cancelar</button>
+      <button class="btn bg" onclick="saveSelloIngreso()">Guardar llegada</button>
+    </div>
+  </div>
+</div>
+<!-- FORMULARIO PROFESIONAL MANTENIMIENTO -->
+<div class="mb" id="m-mant-formulario"><div class="mo mo-lg"><div class="mh"><div><div class="mt">🔧 Mantenimiento Profesional</div><div style="font-size:11px;color:var(--t3);margin-top:2px" id="mant-form-herr-nombre"></div></div><button class="mx" onclick="cM('m-mant-formulario')">✕</button></div><div class="mbd fr-2col" style="padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:16px"><div><div class="fg"><label class="fl">*Tipo de Mantenimiento</label><select class="fs" id="mant-form-tipo"><option value="preventivo">Preventivo</option><option value="correctivo">Correctivo</option><option value="calibracion">Calibración</option></select></div><div class="fg"><label class="fl">*Descripción</label><textarea class="ft" id="mant-form-descripcion" rows="3" placeholder="Descripción detallada del trabajo..."></textarea></div><div class="fg"><label class="fl">*Fecha</label><input type="date" class="fi" id="mant-form-fecha"></div><div class="fg"><label class="fl">*Responsable</label><input type="text" class="fi" id="mant-form-responsable" placeholder="Nombre del responsable"></div><div class="fg"><label class="fl">Técnico</label><input type="text" class="fi" id="mant-form-tecnico" placeholder="Nombre del técnico"></div><div class="fg"><label class="fl">Taller</label><input type="text" class="fi" id="mant-form-taller" placeholder="Nombre del taller"></div></div><div><div class="fg"><label class="fl">Orden de Trabajo</label><input type="text" class="fi" id="mant-form-orden-trabajo" placeholder="Número de orden"></div><div class="fr"><div class="fg"><label class="fl">Presupuesto ($)</label><input type="number" class="fi" id="mant-form-presupuesto" min="0" step="1000"></div><div class="fg"><label class="fl">Costo Final ($)</label><input type="number" class="fi" id="mant-form-costo-final" min="0" step="1000"></div></div><div class="fr"><div class="fg"><label class="fl">Tiempo Estimado (hrs)</label><input type="number" class="fi" id="mant-form-tiempo-est" min="0" step="0.5"></div><div class="fg"><label class="fl">Tiempo Real (hrs)</label><input type="number" class="fi" id="mant-form-tiempo-real" min="0" step="0.5"></div></div><div class="fg"><label class="fl">Proveedor</label><input type="text" class="fi" id="mant-form-proveedor" placeholder="Nombre proveedor"></div><div class="fg"><label class="fl">Próximo Mantenimiento</label><input type="date" class="fi" id="mant-form-proxima-fecha"></div><div class="fg"><label class="fl">Observaciones</label><textarea class="ft" id="mant-form-observaciones" rows="2"></textarea></div><div class="fg"><label class="fl">Nota Interna</label><textarea class="ft" id="mant-form-nota-interna" rows="2"></textarea></div></div><div style="grid-column:1/-1"><div style="font-size:11px;font-weight:600;color:var(--ac);text-transform:uppercase;margin-bottom:8px">📷 Fotos de Evidencia</div><label class="mant-upload-label"><input type="file" multiple accept="image/*" onchange="agregarFotoSeleccionada(event)" style="display:none"><div style="color:var(--ac);font-weight:600">+ Agregar Fotos</div><div style="font-size:11px;color:var(--t3);margin-top:4px">Fotos se comprimen automáticamente</div></label><div id="mant-galeria-previsualizacion" style="margin-top:12px"></div><div id="mant-contador-fotos" style="font-size:11px;margin-top:8px">0 fotos</div></div></div><div class="mft"><button class="btn bs" onclick="cM('m-mant-formulario')">Cancelar</button><button class="btn bs" onclick="guardarMantenimientoCompleto()">Guardar</button><button class="btn bp" onclick="guardarMantenimientoCompleto(true)">Guardar e Imprimir</button></div></div></div>
+<div class="mb" id="m-mant-historial"><div class="mo mo-lg"><div class="mh"><div><div class="mt">📜 Historial de Mantenimientos</div><div style="font-size:11px;color:var(--t3);margin-top:2px" id="mant-hist-herr-nombre"></div></div><button class="mx" onclick="cM('m-mant-historial')">✕</button></div><div class="mbd" style="max-height:60vh;overflow-y:auto" id="mant-hist-lista"></div></div></div>
+<div class="mb" id="m-mant-detalle"><div class="mo mo-lg"><div class="mh"><div id="mant-det-titulo"></div><button class="mx" onclick="cM('m-mant-detalle')">✕</button></div><div class="mbd" style="max-height:70vh;overflow-y:auto;padding:16px"><div id="mant-det-info"></div><div style="margin-top:16px;border-top:1px solid var(--bdr);padding-top:12px"><div style="font-size:11px;font-weight:600;color:var(--ac);margin-bottom:8px">📷 FOTOS Y DOCUMENTACIÓN</div><div id="mant-det-fotos"></div></div></div></div></div>
+<div class="mb" id="m-mant-foto-completa"><div class="mo" style="max-width:90%;max-height:90vh;display:flex;flex-direction:column"><div class="mh"><div id="mant-foto-completa-nombre"></div><button class="mx" onclick="cM('m-mant-foto-completa')">✕</button></div><div style="flex:1;display:flex;align-items:center;justify-content:center;background:var(--bg2);overflow:auto"><img id="mant-foto-completa-img" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:8px"></div></div></div>
+<div class="mb" id="m-mant-alertas"><div class="mo mo-lg"><div class="mh"><span style="color:var(--no)">⚠️</span> Alertas de Calibración<button class="mx" onclick="cM('m-mant-alertas')">✕</button></div><div class="mbd" id="mant-alertas-lista" style="max-height:50vh;overflow-y:auto"></div></div></div>
+
+<!-- MODAL USUARIO SISTEMA -->
+<div class="mb" id="m-system-user"><div class="mo" style="max-width:560px"><div class="mh"><div class="mt" id="msu-title">Nuevo Usuario del Sistema</div><button class="mx" onclick="cM('m-system-user')">✕</button></div><div class="mbd"><input type="hidden" id="msu-id"><div class="fr"><div class="fg"><label class="fl">Usuario *</label><input type="text" class="fi" id="msu-username" placeholder="ej: operador1"></div><div class="fg"><label class="fl">Nombre visible</label><input type="text" class="fi" id="msu-display" placeholder="Nombre completo"></div></div><div class="fr"><div class="fg"><label class="fl">Rol *</label><select class="fs" id="msu-role"></select></div><div class="fg"><label class="fl">Estado</label><select class="fs" id="msu-active"><option value="1">Activo</option><option value="0">Inactivo</option></select></div></div><div class="fg"><label class="fl">Contraseña <span style="color:var(--t3)">(obligatoria al crear)</span></label><input type="password" class="fi" id="msu-password" placeholder="Mínimo 3 caracteres"></div></div><div class="mft"><button class="btn bs" onclick="cM('m-system-user')">Cancelar</button><button class="btn bp" onclick="saveSystemUser()">Guardar</button></div></div></div>
+
+<!-- MODAL PERMISOS -->
+<div class="mb" id="m-system-perms"><div class="mo mo-lg"><div class="mh"><div><div class="mt">Permisos por etiqueta</div><div id="msp-sub" style="font-size:11px;color:var(--t3);margin-top:2px"></div></div><button class="mx" onclick="cM('m-system-perms')">✕</button></div><div class="mbd" style="max-height:65vh;overflow:auto"><div id="msp-help" style="font-size:11px;color:var(--t3);margin-bottom:10px"></div><div id="msp-list"></div></div><div class="mft"><button class="btn bs" onclick="cM('m-system-perms')">Cancelar</button><button class="btn bg" onclick="saveSystemPermissions()">Guardar permisos</button></div></div></div>
+
+<!-- MODAL CONFIRMACIÓN GENÉRICA -->
+<div class="mb" id="m-confirm"><div class="mo" style="max-width:520px"><div class="mh"><div class="mt" id="m-confirm-title">Confirmar acción</div><button class="mx" onclick="closeConfirmModal(false)">✕</button></div><div class="mbd"><div class="modal-stack"><div class="modal-text" id="m-confirm-message">¿Deseas continuar?</div></div></div><div class="mft"><button class="btn bs" id="m-confirm-cancel" onclick="closeConfirmModal(false)">Cancelar</button><button class="btn bg" id="m-confirm-ok" onclick="closeConfirmModal(true)">Aceptar</button></div></div></div>
+
+<!-- MODAL INPUT TEXTO GENÉRICO -->
+<div class="mb" id="m-text-prompt"><div class="mo" style="max-width:520px"><div class="mh"><div><div class="mt" id="m-text-prompt-title">Ingresa un valor</div><div class="modal-text-muted" id="m-text-prompt-message"></div></div><button class="mx" onclick="closeTextPromptModal(null)">✕</button></div><div class="mbd"><div class="modal-stack"><input type="checkbox" id="m-text-prompt-required" style="display:none" checked><div class="fg" style="margin:0"><label class="fl" id="m-text-prompt-label">Valor</label><input type="text" class="fi" id="m-text-prompt-input"></div></div></div><div class="mft"><button class="btn bs" id="m-text-prompt-cancel" onclick="closeTextPromptModal(null)">Cancelar</button><button class="btn bg" id="m-text-prompt-ok" onclick="acceptTextPromptModal()">Aceptar</button></div></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="js/core.js"></script>
+<script src="js/auth-ui.js"></script>
+<script src="js/dashboard-charts.js"></script>
+<script src="js/pagination.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/kardex.js"></script>
+<script src="js/inventario.js"></script>
+<script src="js/ingresos.js"></script>
+<script src="js/consumos.js"></script>
+<script src="js/sellos.js"></script>
+<script src="js/ordenes.js"></script>
+<script src="js/componentes.js"></script>
+<script src="js/paniol-utils.js"></script>
+<script src="js/paniol.js"></script>
+<script src="js/auditorias.js"></script>
+<script src="js/mantenimiento-profesional.js"></script>
+<script src="js/mantenimiento-reportes.js"></script>
+<script src="js/init.js"></script>
+<script src="js/themeUtils.js"></script>
+<script src="js/iconUtils.js"></script>
+<script src="settings.js" defer></script>
+</body>
+</html>
