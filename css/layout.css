@@ -1,0 +1,398 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'IBM Plex Sans', sans-serif; font-weight: 500; background: var(--bg0); color: var(--t1); min-height: 100vh; }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bd); border-radius: 3px; }
+
+/* ===== SIDEBAR BASE ===== */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--sw);
+  background: var(--bg1);
+  border-right: 1px solid var(--bd);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: width .3s cubic-bezier(0.4, 0, 0.2, 1), transform .3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar.collapsed {
+  transform: translateX(-100%);
+  pointer-events: none;
+}
+
+/* ===== SIDEBAR HIDDEN STATE ===== */
+.sidebar.hidden {
+  transform: translateX(-100%);
+}
+
+/* Overlay cuando el menú está visible SOLO en móvil */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s ease;
+  display: none;
+}
+
+/* Overlay solo visible en móvil/tablet */
+@media (max-width: 768px) {
+  .sidebar-overlay {
+    display: block;
+  }
+  
+  .sidebar-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+}
+
+/* ===== SIDEBAR COMPONENTS (EXPANDED) ===== */
+.s-hdr { 
+  padding: 16px; 
+  border-bottom: 1px solid var(--bd); 
+}
+
+.s-logo { 
+  font-size: 16px; 
+  font-weight: 700; 
+  letter-spacing: -.5px; 
+  display: flex; 
+  align-items: center; 
+  gap: 9px; 
+}
+
+.s-sub { 
+  font-size: 9px; 
+  color: var(--t3); 
+  margin-top: 3px; 
+  font-family: 'IBM Plex Mono', monospace; 
+  text-transform: uppercase; 
+  letter-spacing: 1.2px; 
+}
+
+.s-nav { flex: 1; padding: 8px 6px; overflow-y: auto; }
+.nl { font-size: 9px; font-weight: 600; color: var(--t3); text-transform: uppercase; letter-spacing: 1.5px; padding: 12px 10px 4px; font-family: 'IBM Plex Mono', monospace; }
+.ni { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 6px; cursor: pointer; color: var(--t2); font-size: 12px; font-weight: 500; transition: all var(--tr); position: relative; }
+.ni:hover { background: var(--bg4); color: var(--t1); }
+.ni:focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; background: var(--bg4); color: var(--t1); }
+.ni.on { background: var(--acd); color: var(--ac); }
+.ni.on::before { content: ''; position: absolute; left: -6px; top: 50%; transform: translateY(-50%); width: 3px; height: 16px; background: var(--ac); border-radius: 0 3px 3px 0; }
+.ni svg { width: 15px; height: 15px; opacity: .6; flex-shrink: 0; }
+.ni.on svg { opacity: 1; }
+.nbg { margin-left: auto; background: var(--no); color: #fff; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 10px; font-family: 'IBM Plex Mono', monospace; }
+.ni-group { justify-content: flex-start; }
+.ni-caret {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--t3);
+  cursor: pointer;
+  flex-shrink: 0;
+  user-select: none;
+}
+.ni-caret:hover { background: var(--bg4); color: var(--t1); }
+.snav { display: none; margin: 2px 0 6px 22px; padding-left: 8px; border-left: 1px dashed var(--bd2); }
+.snav.open { display: block; }
+.sni { padding: 6px 8px; border-radius: 5px; cursor: pointer; color: var(--t3); font-size: 11px; transition: all var(--tr); }
+.sni:hover { background: var(--bg4); color: var(--t2); }
+.sni:focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; background: var(--bg4); color: var(--t1); }
+.sni.on { background: var(--acd); color: var(--ac); }
+
+/* Keep labels readable and avoid clipping with long module names */
+.ni,
+.sni {
+  min-width: 0;
+}
+
+.ni {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar.collapsed .snav {
+  display: none !important;
+}
+
+.s-ft { padding: 8px; border-top: 1px solid var(--bd); display: flex; flex-direction: column; gap: 4px; }
+.s-backup { margin-top: auto; background: linear-gradient(180deg, transparent, var(--acd)); }
+.s-btn { width: 100%; padding: 6px; background: var(--bg4); border: 1px solid var(--bd); border-radius: 5px; color: var(--t2); font-size: 10px; cursor: pointer; font-family: 'IBM Plex Sans', sans-serif; transition: all var(--tr); }
+.s-btn:hover { background: var(--bg3); color: var(--t1); }
+.s-btn:focus-visible,
+.toggle-sidebar:focus-visible,
+.t-search:focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
+
+.main { 
+  margin-left: var(--sw); 
+  width: calc(100% - var(--sw));
+  min-height: 100vh; 
+  min-width: 0;
+  transition: margin-left .3s cubic-bezier(0.4, 0, 0.2, 1); 
+}
+
+.main.full-width { 
+  margin-left: 0; 
+  width: 100%;
+}
+
+.main.sidebar-collapsed {
+  margin-left: 0;
+  width: 100%;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  background: var(--bg1);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--bd);
+  padding: 0 22px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 50;
+}
+.topbar-t { font-size: 13px; font-weight: 600; }
+.toggle-sidebar { 
+  width: 36px; 
+  height: 36px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  background: var(--bg3); 
+  border: 1px solid var(--bd); 
+  border-radius: 8px; 
+  color: var(--ac); 
+  cursor: pointer; 
+  font-size: 16px; 
+  transition: all .3s cubic-bezier(0.4, 0, 0.2, 1); 
+  margin-right: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.toggle-sidebar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--ac);
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+
+.toggle-sidebar:hover { 
+  background: var(--bg4); 
+  color: var(--ach); 
+  box-shadow: 0 0 12px var(--acd);
+  transform: scale(1.05);
+}
+
+.toggle-sidebar:hover::before {
+  opacity: 0.1;
+}
+
+.toggle-sidebar.menu-hidden {
+  background: var(--acd);
+  color: var(--ac);
+  border-color: var(--ac);
+  animation: pulse-btn 2s infinite;
+}
+
+@keyframes pulse-btn {
+  0%, 100% {
+    box-shadow: 0 0 0 0 var(--acd);
+  }
+  50% {
+    box-shadow: 0 0 0 8px transparent;
+  }
+}
+
+.toggle-sidebar span {
+  position: relative;
+  z-index: 1;
+}
+.t-search { background: var(--bg2); border: 1px solid var(--bd); border-radius: 6px; padding: 11px 14px; color: var(--t1); font-size: 13px; font-family: 'IBM Plex Sans', sans-serif; width: 280px; outline: none; }
+.t-search:focus { border-color: var(--ac); box-shadow: 0 0 0 2px var(--acd); }
+.t-search::placeholder { color: var(--t3); }
+
+.content { padding: 22px; min-width: 0; overflow-x: hidden; }
+.g4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; min-width: 0; }
+.g2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; min-width: 0; }
+
+@media (max-width: 768px) {
+  .sidebar { 
+    transform: translateX(-100%); 
+    transition: transform .3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.5);
+  }
+  .sidebar.open { 
+    transform: translateX(0); 
+  }
+  .sidebar.hidden {
+    transform: translateX(-100%);
+  }
+  .main { 
+    margin-left: 0; 
+    width: 100%;
+  }
+  .main.full-width {
+    margin-left: 0;
+    width: 100%;
+  }
+  .main.sidebar-collapsed {
+    margin-left: 0;
+    width: 100%;
+  }
+  .g2 { grid-template-columns: 1fr; }
+  .fr { grid-template-columns: 1fr; }
+  .ficha-panel { width: 100%; }
+  #mob-btn { display: block; }
+  .topbar { padding: 0 12px; }
+  .content { padding: 12px; }
+  .t-search { width: 150px; }
+  .g4 { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+  .card { padding: 12px; }
+  .th { padding: 8px 12px; }
+  .td, th { padding: 6px 8px; }
+  .btn { padding: 4px 8px; font-size: 10px; }
+  .toggle-sidebar { display: none; }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  :root { --sw: 200px; }
+  .main { 
+    margin-left: 200px; 
+    width: calc(100% - 200px);
+  }
+  .main.full-width {
+    margin-left: 0;
+    width: 100%;
+  }
+  .main.sidebar-collapsed {
+    margin-left: 0;
+    width: 100%;
+  }
+  .g4 { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+  .topbar { padding: 0 16px; }
+  .content { padding: 16px; }
+  .th, td { font-size: 10px; padding: 7px 10px; }
+}
+
+/* ===== QUICK NAVIGATION BAR (cuando sidebar está contraído) ===== */
+.quick-nav {
+  display: none;
+  position: sticky;
+  top: 50px;
+  background: var(--bg1);
+  border-bottom: 1px solid var(--bd);
+  padding: 8px 16px;
+  z-index: 40;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+}
+
+.quick-nav::-webkit-scrollbar {
+  height: 3px;
+}
+
+.quick-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.quick-nav::-webkit-scrollbar-thumb {
+  background: var(--bd);
+  border-radius: 3px;
+}
+
+.main.sidebar-collapsed .quick-nav {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.qn-section {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.qn-label {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--t3);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-family: 'IBM Plex Mono', monospace;
+  padding: 0 6px 0 0;
+}
+
+.qn-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--bd2);
+  flex-shrink: 0;
+}
+
+.qn-item {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--t2);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.qn-item:hover {
+  background: var(--bg4);
+  color: var(--t1);
+  border-color: var(--bd);
+}
+
+.qn-item:focus-visible {
+  outline: 2px solid var(--ac);
+  outline-offset: 2px;
+}
+
+.qn-item.active {
+  background: var(--acd);
+  color: var(--ac);
+  border-color: var(--ac);
+}
+
+.qn-item svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Cuando quick-nav está visible, agregar padding extra al topbar */
+.main.sidebar-collapsed .topbar {
+  padding-right: 12px;
+}

@@ -1,0 +1,204 @@
+/**
+ * Variables de Tema Claro - North Chrome v2
+ * Define la paleta de colores para el tema claro
+ * Se aplica mediante [data-theme="light"]
+ */
+
+html[data-theme="light"] {
+  /* ─────────────────────────────────────────────────────────── */
+  /* PALETA DE FONDOS (Blancos y Grises Claros) */
+  /* ─────────────────────────────────────────────────────────── */
+  --bg0: #ffffff;     /* Fondo principal - Blanco puro */
+  --bg1: #f7f7f9;     /* Sidebar, fondos secundarios */
+  --bg2: #efeff2;     /* Cards, paneles flotantes */
+  --bg3: #e8e8ec;     /* Estados hover, elementos elevados */
+  --bg4: #e0e0e5;     /* Elementos destacados, inputs activos */
+  
+  /* ─────────────────────────────────────────────────────────── */
+  /* PALETA DE BORDES (Grises Medios) */
+  /* ─────────────────────────────────────────────────────────── */
+  --bd: #d0d0d8;      /* Bordes normales, divisores */
+  --bd2: #c0c0c8;     /* Bordes secundarios, más visibles */
+  
+  /* ─────────────────────────────────────────────────────────── */
+  /* PALETA DE TEXTO (Oscuros) */
+  /* ─────────────────────────────────────────────────────────── */
+  --t1: #1a1a1c;      /* Texto principal - Negro puro */
+  --t2: #4a4a52;      /* Texto secundario, labels */
+  --t3: #8a8a92;      /* Texto terciario, deshabilitado */
+  
+  /* ─────────────────────────────────────────────────────────── */
+  /* PALETA DE ACENTOS (Colores de Estado - Variantes para claro) */
+  /* ─────────────────────────────────────────────────────────── */
+  --ac: #0533d1;      /* Acento principal azul */
+  --acd: rgba(5, 51, 209, 0.12);   /* Acento con transparencia (más sutil) */
+  --ach: #3b5fe6;     /* Acento hover (más claro) */
+  --on-ac: #ffffff;
+  
+  /* Colores de estado - ajustados para fondo claro */
+  --ok: #b8642d;      /* Correcto/Éxito - Naranja más cómodo para lectura */
+  --okh: #a95a29;
+  --okd: rgba(184, 100, 45, 0.15);
+  --on-ok: #fff7f1;
+  --no: #dc2626;      /* Error/Fallo - Rojo más saturado */
+  --nod: rgba(220, 38, 38, 0.12);
+  --on-no: #ffffff;
+  --wa: #b45309;      /* Advertencia - controlado, no fluorescente */
+  --wad: rgba(180, 83, 9, 0.13);
+  --on-wa: #fff8f2;
+  --in: #9333ea;      /* Información - Púrpura más saturado */
+  --ind: rgba(147, 51, 234, 0.12);
+  --history-detail-row-bg: #eef4ff;
+  --history-detail-panel-bg: #f5f8ff;
+  --history-detail-panel-inner-bg: #ffffff;
+  --history-detail-head-bg: #e6eefc;
+  --history-detail-border: rgba(5, 51, 209, 0.55);
+  --history-detail-border-soft: rgba(5, 51, 209, 0.18);
+  --history-detail-accent: rgba(5, 51, 209, 0.16);
+  --history-detail-button-bg: rgba(5, 51, 209, 0.12);
+  --history-detail-button-text: #0533d1;
+  --history-detail-button-ring: rgba(5, 51, 209, 0.18);
+  
+  /* ─────────────────────────────────────────────────────────── */
+  /* BRANDING */
+  /* ─────────────────────────────────────────────────────────── */
+  --brand-earth: #9c4537;
+  --brand-sand: #c7582d;
+}
+
+/* Aplicar tema claro a todos los elementos */
+html[data-theme="light"] body {
+  background: var(--bg0);
+  color: var(--t1);
+}
+
+html[data-theme="light"] .sidebar {
+  background: var(--bg1);
+  border-right-color: var(--bd);
+}
+
+html[data-theme="light"] .topbar {
+  background: var(--bg1);
+  border-bottom-color: var(--bd);
+}
+
+html[data-theme="light"] .card,
+html[data-theme="light"] .modal,
+html[data-theme="light"] .tw {
+  background: var(--bg2);
+  border-color: var(--bd);
+}
+
+html[data-theme="light"] input,
+html[data-theme="light"] select,
+html[data-theme="light"] textarea {
+  background: var(--bg0);
+  color: var(--t1);
+  border-color: var(--bd);
+}
+
+html[data-theme="light"] input:focus,
+html[data-theme="light"] select:focus,
+html[data-theme="light"] textarea:focus {
+  background: var(--bg2);
+  border-color: var(--ac);
+}
+
+html[data-theme="light"] button,
+html[data-theme="light"] .btn {
+  color: var(--t1);
+}
+
+html[data-theme="light"] .ni:hover,
+html[data-theme="light"] .s-btn:hover {
+  background: var(--bg2);
+}
+
+html[data-theme="light"] .sep,
+html[data-theme="light"] .bd {
+  border-color: var(--bd);
+}
+
+html[data-theme="light"] table tr:hover {
+  background: var(--bg2);
+}
+
+/* Label y texto de ayuda */
+html[data-theme="light"] label,
+html[data-theme="light"] .label {
+  color: var(--t2);
+}
+
+html[data-theme="light"] .help-text,
+html[data-theme="light"] .hint {
+  color: var(--t3);
+}
+
+html[data-theme="light"] .ing-iva-inline {
+  color: var(--t1);
+}
+
+/* Scrollbars claros */
+html[data-theme="light"] ::-webkit-scrollbar-track {
+  background: var(--bg1);
+}
+
+html[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: var(--bd);
+}
+
+html[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--bd2);
+}
+
+/* Inputs con tema claro - optimizados */
+html[data-theme="light"] input.t-search,
+html[data-theme="light"] .search-input {
+  background: var(--bg2);
+  color: var(--t1);
+  border-color: var(--bd2);
+}
+
+html[data-theme="light"] input.t-search::placeholder {
+  color: var(--t3);
+}
+
+/* Botones con tema claro */
+html[data-theme="light"] .s-btn,
+html[data-theme="light"] .nav-btn {
+  background: var(--bg2);
+  color: var(--t1);
+  border-color: var(--bd);
+}
+
+html[data-theme="light"] .s-btn:hover,
+html[data-theme="light"] .nav-btn:hover {
+  background: var(--bg3);
+  border-color: var(--bd2);
+}
+
+/* Modales con tema claro */
+html[data-theme="light"] .settings-modal,
+html[data-theme="light"] .modal-content {
+  background: var(--bg0);
+  color: var(--t1);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  border-color: var(--bd);
+}
+
+/* Links con tema claro */
+html[data-theme="light"] a {
+  color: var(--ac);
+}
+
+html[data-theme="light"] a:hover {
+  color: var(--ach);
+}
+
+/* Código con tema claro */
+html[data-theme="light"] code,
+html[data-theme="light"] pre {
+  background: var(--bg2);
+  color: var(--t1);
+  border-color: var(--bd);
+}

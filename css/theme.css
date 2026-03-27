@@ -1,0 +1,56 @@
+:root {
+  --bg0: #d6e4f5;
+  --bg1: #e1ecfa;
+  --bg2: #ebf2fb;
+  --bg3: #f3f8fe;
+  --bg4: #ffffff;
+  --bd: #afbdd0;
+  --bd2: #9eafc6;
+
+  --t1: #111722;
+  --t2: #253246;
+  --t3: #4a5e77;
+
+  --ac: #7fb3ff;
+  --acd: rgba(127, 179, 255, 0.24);
+  --ach: #6ea7f8;
+  --on-ac: #111722;
+  --ac-ink: #1f4d8f;
+  --ac-action-ink: #2f67b8;
+
+  --ok: #8fc0ff;
+  --okh: #7bb4ff;
+  --okd: rgba(143, 192, 255, 0.22);
+  --on-ok: #111722;
+  --no: #b5524c;
+  --nod: rgba(181, 82, 76, 0.16);
+  --on-no: #111722;
+  --wa: #a8ccff;
+  --wad: rgba(168, 204, 255, 0.22);
+  --on-wa: #111722;
+  --in: #1f4d8f;
+  --ind: rgba(154, 182, 232, 0.22);
+
+  --brand-earth: #9c4537;
+  --brand-sand: #c7582d;
+
+  --sw: 232px;
+  --r: 8px;
+  --tr: .2s ease;
+}
+
+.brand-logo {
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  object-fit: contain;
+  background: #fff;
+  padding: 2px;
+  border: 1px solid var(--bd2);
+  transition: all .3s ease;
+}
+
+.s-logo-text {
+  display: inline-flex;
+  align-items: center;
+}

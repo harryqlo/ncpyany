@@ -1,0 +1,326 @@
+/**
+ * Icon System - North Chrome v2
+ * Sistema profesional y centralizado de iconos
+ * 
+ * Soporta múltiples formatos:
+ * - SVG inline con clases
+ * - Unicode icons (con fallbacks)
+ * - CSS-based status indicators
+ */
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* ICON BASE CLASSES */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* SIZE VARIANTS */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.icon-xs { width: 12px; height: 12px; }
+.icon-sm { width: 16px; height: 16px; }
+.icon-md { width: 24px; height: 24px; }
+.icon-lg { width: 32px; height: 32px; }
+.icon-xl { width: 40px; height: 40px; }
+
+/* Navigation icons (fixed size) */
+.nav-icon { width: 16px; height: 16px; }
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* SVG STROKE VARIANT (Para outline icons) */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.icon-stroke svg,
+svg.icon-stroke {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* COLOR VARIANTS */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.icon-primary { color: var(--ac); }
+.icon-success { color: var(--ok); }
+.icon-danger { color: var(--no); }
+.icon-warning { color: var(--wa); }
+.icon-info { color: var(--in); }
+.icon-muted { color: var(--t3); }
+.icon-text { color: var(--t1); }
+.icon-text-secondary { color: var(--t2); }
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* STATUS INDICATOR ICONS (8×8 Dots) */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.icon-status,
+.icon-condition {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+/* Condiciones de equipos */
+.icon-status.operativa { background: var(--ok); }
+.icon-status.mantenimiento { background: var(--wa); }
+.icon-status.defectuosa { background: var(--no); }
+.icon-status.baja { background: var(--t3); }
+
+/* Alias para consistencia */
+.icon-condition.operativa { background: var(--ok); }
+.icon-condition.mantenimiento { background: var(--wa); }
+.icon-condition.defectuosa { background: var(--no); }
+.icon-condition.baja { background: var(--t3); }
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* UNICODE ICON CONTAINERS */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.icon-unicode {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: inherit;
+  line-height: 1;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Unicode status icons */
+.icon-unicode-check {
+  font-weight: 700;
+  color: var(--ok);
+}
+
+.icon-unicode-error {
+  font-weight: 700;
+  color: var(--no);
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* KPI ICON BOXES (44×44 Styled Containers) */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.icon-kpi {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  border: 1px solid;
+  transition: all var(--tr);
+}
+
+/* KPI Primary (Blue) - Active Loans */
+.icon-kpi.primary {
+  background: var(--acd);
+  color: var(--ac);
+  border-color: rgba(5, 51, 209, 0.22);
+}
+
+.icon-kpi.primary:hover {
+  background: rgba(5, 51, 209, 0.24);
+  border-color: rgba(5, 51, 209, 0.32);
+}
+
+/* KPI Warning (Orange) - Maintenance */
+.icon-kpi.warning {
+  background: var(--wad);
+  color: var(--wa);
+  border-color: rgba(221, 103, 74, 0.22);
+}
+
+.icon-kpi.warning:hover {
+  background: rgba(221, 103, 74, 0.24);
+  border-color: rgba(221, 103, 74, 0.32);
+}
+
+/* KPI Danger (Red) - Damaged/Low Stock */
+.icon-kpi.danger {
+  background: var(--nod);
+  color: var(--no);
+  border-color: rgba(191, 97, 95, 0.22);
+}
+
+.icon-kpi.danger:hover {
+  background: rgba(191, 97, 95, 0.24);
+  border-color: rgba(191, 97, 95, 0.32);
+}
+
+/* KPI Neutral (Gray) - Total Assets */
+.icon-kpi.neutral {
+  background: rgba(143, 157, 191, 0.12);
+  color: var(--t3);
+  border-color: rgba(143, 157, 191, 0.24);
+}
+
+.icon-kpi.neutral:hover {
+  background: rgba(143, 157, 191, 0.18);
+  border-color: rgba(143, 157, 191, 0.32);
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* ACTION ICONS (Edit, Delete, etc.) */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.icon-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--t2);
+  transition: color var(--tr), transform var(--tr);
+}
+
+.icon-action:hover {
+  color: var(--ac);
+  transform: scale(1.1);
+}
+
+.icon-action.edit { color: var(--ac); }
+.icon-action.delete { color: var(--no); }
+.icon-action.success { color: var(--ok); }
+.icon-action.warning { color: var(--wa); }
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* TIMELINE DOTS (Kardex Timeline) */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.icon-timeline-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--bg1);
+  border: 2px solid var(--ac);
+  flex-shrink: 0;
+}
+
+.icon-timeline-dot.salida {
+  border-color: var(--no);
+}
+
+.icon-timeline-dot.devolucion {
+  border-color: var(--ok);
+}
+
+.icon-timeline-dot.mantenimiento {
+  border-color: var(--ac);
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* BADGE ICONS (Small Info Badges) */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--ac);
+  color: var(--on-ac);
+  flex-shrink: 0;
+}
+
+.icon-badge.success { background: var(--ok); }
+.icon-badge.danger { background: var(--no); }
+.icon-badge.warning { background: var(--wa); }
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* ICON LOADING STATE */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.icon-loading svg {
+  animation: icon-spin 1s linear infinite;
+}
+
+@keyframes icon-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* ACCESSIBILITY */
+/* ═══════════════════════════════════════════════════════════════ */
+
+/* Screen reader only text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* UTILITY COMBINATIONS */
+/* ═══════════════════════════════════════════════════════════════ */
+
+/* Navigation icon within list item */
+.ni .icon-stroke {
+  opacity: 0.6;
+  transition: opacity var(--tr);
+}
+
+.ni.on .icon-stroke {
+  opacity: 1;
+}
+
+.ni:hover .icon-stroke {
+  opacity: 0.8;
+}
+
+/* Icon with label in buttons */
+.btn .icon {
+  margin-right: 6px;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* RESPONSIVE */
+/* ═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .icon-lg {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .icon-kpi {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+}

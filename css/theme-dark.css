@@ -1,0 +1,178 @@
+/**
+ * Variables de Tema Oscuro - North Chrome v2
+ * Define la paleta de colores para el tema oscuro
+ * Se aplica mediante [data-theme="dark"]
+ */
+
+html[data-theme="dark"],
+html[data-theme="auto"] {
+  /* ─────────────────────────────────────────────────────────── */
+  /* PALETA DE FONDOS (Grises Oscuros) */
+  /* ─────────────────────────────────────────────────────────── */
+  --bg0: #090d14;     /* Fondo principal */
+  --bg1: #0f1520;     /* Sidebar, fondos secundarios */
+  --bg2: #151d2a;     /* Cards, paneles flotantes */
+  --bg3: #1d2737;     /* Estados hover, elementos elevados */
+  --bg4: #253245;     /* Elementos destacados, inputs activos */
+  
+  /* ─────────────────────────────────────────────────────────── */
+  /* PALETA DE BORDES (Grises Medios) */
+  /* ─────────────────────────────────────────────────────────── */
+  --bd: #2a374b;      /* Bordes normales, divisores */
+  --bd2: #364964;     /* Bordes secundarios, más visibles */
+  
+  /* ─────────────────────────────────────────────────────────── */
+  /* PALETA DE TEXTO (Blancos y Grises) */
+  /* ─────────────────────────────────────────────────────────── */
+  --t1: #eaf1ff;      /* Texto principal */
+  --t2: #b8c9e3;      /* Texto secundario, labels */
+  --t3: #8ba0bf;      /* Texto terciario, deshabilitado */
+  
+  /* ─────────────────────────────────────────────────────────── */
+  /* PALETA DE ACENTOS (Colores de Estado) */
+  /* ─────────────────────────────────────────────────────────── */
+  --ac: #7fb3ff;      /* Acento principal azul claro */
+  --acd: rgba(127, 179, 255, 0.2); /* Acento con transparencia */
+  --ach: #9bc3ff;     /* Acento hover */
+  --on-ac: #0d1118;
+  --ac-ink: #b9d5ff;  /* Azul claro para texto/etiquetas */
+  --ac-action-ink: #8bb8ff; /* Azul medio para iconos/acciones */
+  
+  /* Colores de estado por defecto */
+  --ok: #78d7b0;
+  --okh: #90e0bf;
+  --okd: rgba(120, 215, 176, 0.2);
+  --on-ok: #08120f;
+  --no: #f08b8b;
+  --nod: rgba(240, 139, 139, 0.16);
+  --on-no: #190b0b;
+  --wa: #f5cf86;
+  --wad: rgba(245, 207, 134, 0.18);
+  --on-wa: #1a1203;
+  --in: #9ec3ff;
+  --ind: rgba(158, 195, 255, 0.2);
+  --history-detail-row-bg: #121a27;
+  --history-detail-panel-bg: #182233;
+  --history-detail-panel-inner-bg: #111925;
+  --history-detail-head-bg: #1f2c42;
+  --history-detail-border: rgba(127, 179, 255, 0.34);
+  --history-detail-border-soft: rgba(127, 179, 255, 0.15);
+  --history-detail-accent: rgba(127, 179, 255, 0.12);
+  --history-detail-button-bg: rgba(127, 179, 255, 0.16);
+  --history-detail-button-text: #c9deff;
+  --history-detail-button-ring: rgba(127, 179, 255, 0.26);
+  
+  /* ─────────────────────────────────────────────────────────── */
+  /* BRANDING */
+  /* ─────────────────────────────────────────────────────────── */
+  --brand-earth: #9c4537;
+  --brand-sand: #c7582d;
+}
+
+/* Aplicar tema oscuro a todos los elementos por defecto */
+html[data-theme="dark"] body,
+html[data-theme="auto"] body {
+  background: var(--bg0);
+  color: var(--t1);
+}
+
+html[data-theme="dark"] .sidebar,
+html[data-theme="auto"] .sidebar {
+  background: var(--bg1);
+  border-right-color: var(--bd);
+}
+
+html[data-theme="dark"] .topbar,
+html[data-theme="auto"] .topbar {
+  background: var(--bg1);
+  border-bottom-color: var(--bd);
+}
+
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .modal,
+html[data-theme="dark"] .tw,
+html[data-theme="auto"] .card,
+html[data-theme="auto"] .modal,
+html[data-theme="auto"] .tw {
+  background: var(--bg2);
+  border-color: var(--bd);
+}
+
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea,
+html[data-theme="auto"] input,
+html[data-theme="auto"] select,
+html[data-theme="auto"] textarea {
+  background: var(--bg3);
+  color: var(--t1);
+  border-color: var(--bd);
+}
+
+html[data-theme="dark"] input:focus,
+html[data-theme="dark"] select:focus,
+html[data-theme="dark"] textarea:focus,
+html[data-theme="auto"] input:focus,
+html[data-theme="auto"] select:focus,
+html[data-theme="auto"] textarea:focus {
+  background: var(--bg4);
+  border-color: var(--ac);
+}
+
+html[data-theme="dark"] button,
+html[data-theme="dark"] .btn,
+html[data-theme="auto"] button,
+html[data-theme="auto"] .btn {
+  color: var(--t1);
+}
+
+html[data-theme="dark"] .ni:hover,
+html[data-theme="dark"] .s-btn:hover,
+html[data-theme="auto"] .ni:hover,
+html[data-theme="auto"] .s-btn:hover {
+  background: var(--bg3);
+}
+
+html[data-theme="dark"] .sep,
+html[data-theme="dark"] .bd,
+html[data-theme="auto"] .sep,
+html[data-theme="auto"] .bd {
+  border-color: var(--bd);
+}
+
+html[data-theme="dark"] table tr:hover,
+html[data-theme="auto"] table tr:hover {
+  background: var(--bg3);
+}
+
+/* Label y texto de ayuda */
+html[data-theme="dark"] label,
+html[data-theme="dark"] .label,
+html[data-theme="auto"] label,
+html[data-theme="auto"] .label {
+  color: var(--t2);
+}
+
+html[data-theme="dark"] .help-text,
+html[data-theme="dark"] .hint,
+html[data-theme="auto"] .help-text,
+html[data-theme="auto"] .hint {
+  color: var(--t3);
+}
+
+/* Scrollbars oscuros */
+html[data-theme="dark"] ::-webkit-scrollbar-track,
+html[data-theme="auto"] ::-webkit-scrollbar-track {
+  background: var(--bg1);
+}
+
+html[data-theme="dark"] ::-webkit-scrollbar-thumb,
+html[data-theme="auto"] ::-webkit-scrollbar-thumb {
+  background: var(--bd2);
+}
+
+html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover,
+html[data-theme="auto"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--bd2);
+  opacity: 0.8;
+}
