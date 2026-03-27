@@ -1,0 +1,59 @@
+2026-03-10 12:42:57,276 - audit - INFO - [SUCCESS] user=system op=CREATE resource=herramientas details=herramienta_id=1 sku=HERR-CHECKIN-001 nombre=Herramienta para Checkin ip=None
+2026-03-10 12:42:57,289 - audit - INFO - [SUCCESS] user=system op=CHECKOUT resource=herramientas details=movimientos=[1] empleado=Empleado Checkin Test empleado_id=1 cantidad_items=1 ip=None
+2026-03-10 12:42:57,318 - audit - INFO - [SUCCESS] user=system op=CHECKIN resource=herramientas details=movimiento_id=1 herramienta_id=1 estado_retorno=operativa cantidad_devuelta=2 ip=None
+2026-03-10 12:42:57,337 - audit - INFO - [SUCCESS] user=system op=CHECKOUT resource=herramientas details=movimientos=[2] empleado=Empleado Checkin Test empleado_id=1 cantidad_items=1 ip=None
+2026-03-10 12:42:57,362 - audit - INFO - [SUCCESS] user=system op=CHECKIN resource=herramientas details=movimiento_id=2 herramienta_id=1 estado_retorno=operativa cantidad_devuelta=1 ip=None
+2026-03-10 12:43:22,839 - audit - INFO - [SUCCESS] user=system op=CREATE resource=herramientas details=herramienta_id=1 sku=HERR-CHECKIN-001 nombre=Herramienta para Checkin ip=None
+2026-03-10 12:43:22,853 - audit - INFO - [SUCCESS] user=system op=CHECKOUT resource=herramientas details=movimientos=[1] empleado=Empleado Checkin Test empleado_id=1 cantidad_items=1 ip=None
+2026-03-10 12:43:22,887 - audit - INFO - [SUCCESS] user=system op=CHECKIN resource=herramientas details=movimiento_id=1 herramienta_id=1 estado_retorno=operativa cantidad_devuelta=2 ip=None
+2026-03-10 12:43:22,908 - audit - INFO - [SUCCESS] user=system op=CHECKOUT resource=herramientas details=movimientos=[2] empleado=Empleado Checkin Test empleado_id=1 cantidad_items=1 ip=None
+2026-03-10 12:43:22,940 - audit - INFO - [SUCCESS] user=system op=CHECKIN resource=herramientas details=movimiento_id=2 herramienta_id=1 estado_retorno=operativa cantidad_devuelta=1 ip=None
+2026-03-10 12:44:22,102 - audit - INFO - [SUCCESS] user=system op=CREATE resource=herramientas details=herramienta_id=1 sku=HERR-CHECKIN-001 nombre=Herramienta para Checkin ip=None
+2026-03-10 12:44:22,113 - audit - INFO - [SUCCESS] user=system op=CHECKOUT resource=herramientas details=movimientos=[1] empleado=Empleado Checkin Test empleado_id=1 cantidad_items=1 ip=None
+2026-03-10 12:44:22,139 - audit - INFO - [SUCCESS] user=system op=CHECKIN resource=herramientas details=movimiento_id=1 herramienta_id=1 estado_retorno=operativa cantidad_devuelta=2 ip=None
+2026-03-10 12:44:22,160 - audit - INFO - [SUCCESS] user=system op=CHECKOUT resource=herramientas details=movimientos=[2] empleado=Empleado Checkin Test empleado_id=1 cantidad_items=1 ip=None
+2026-03-10 12:44:22,188 - audit - INFO - [SUCCESS] user=system op=CHECKIN resource=herramientas details=movimiento_id=2 herramienta_id=1 estado_retorno=operativa cantidad_devuelta=1 ip=None
+2026-03-10 12:46:23,702 - audit - INFO - [SUCCESS] user=system op=CREATE resource=herramientas details=herramienta_id=1 sku=HERR-CHECKIN-001 nombre=Herramienta para Checkin ip=None
+2026-03-10 12:46:23,714 - audit - INFO - [SUCCESS] user=system op=CHECKOUT resource=herramientas details=movimientos=[1] empleado=Empleado Checkin Test empleado_id=1 cantidad_items=1 ip=None
+2026-03-10 12:46:23,739 - audit - INFO - [SUCCESS] user=system op=CHECKIN resource=herramientas details=movimiento_id=1 herramienta_id=1 estado_retorno=operativa cantidad_devuelta=2 ip=None
+2026-03-10 12:46:23,759 - audit - INFO - [SUCCESS] user=system op=CHECKOUT resource=herramientas details=movimientos=[2] empleado=Empleado Checkin Test empleado_id=1 cantidad_items=1 ip=None
+2026-03-10 12:46:23,787 - audit - INFO - [SUCCESS] user=system op=CHECKIN resource=herramientas details=movimiento_id=2 herramienta_id=1 estado_retorno=operativa cantidad_devuelta=1 ip=None
+2026-03-10 12:47:58,304 - audit - INFO - [SUCCESS] user=system op=CREATE resource=herramientas details=herramienta_id=1 sku=HERR-CHECKIN-001 nombre=Herramienta para Checkin ip=None
+2026-03-10 12:47:58,317 - audit - INFO - [SUCCESS] user=system op=CHECKOUT resource=herramientas details=movimientos=[1] empleado=Empleado Checkin Test empleado_id=1 cantidad_items=1 ip=None
+2026-03-10 12:47:58,348 - audit - INFO - [SUCCESS] user=system op=CHECKIN resource=herramientas details=movimiento_id=1 herramienta_id=1 estado_retorno=operativa cantidad_devuelta=2 ip=None
+2026-03-10 12:47:58,364 - audit - INFO - [SUCCESS] user=system op=CHECKOUT resource=herramientas details=movimientos=[2] empleado=Empleado Checkin Test empleado_id=1 cantidad_items=1 ip=None
+2026-03-10 12:47:58,392 - audit - INFO - [SUCCESS] user=system op=CHECKIN resource=herramientas details=movimiento_id=2 herramienta_id=1 estado_retorno=operativa cantidad_devuelta=1 ip=None
+2026-03-10 12:48:57,186 - audit - INFO - [SUCCESS] user=system op=CREATE resource=herramientas details=herramienta_id=1 sku=HERR-CHECKIN-001 nombre=Herramienta para Checkin ip=None
+2026-03-10 12:48:57,208 - audit - INFO - [SUCCESS] user=system op=CHECKOUT resource=herramientas details=movimientos=[1] empleado=Empleado Checkin Test empleado_id=1 cantidad_items=1 ip=None
+2026-03-10 12:48:57,242 - audit - INFO - [SUCCESS] user=system op=CHECKIN resource=herramientas details=movimiento_id=1 herramienta_id=1 estado_retorno=operativa cantidad_devuelta=2 ip=None
+2026-03-10 12:48:57,268 - audit - INFO - [SUCCESS] user=system op=CHECKOUT resource=herramientas details=movimientos=[2] empleado=Empleado Checkin Test empleado_id=1 cantidad_items=1 ip=None
+2026-03-10 12:48:57,297 - audit - INFO - [SUCCESS] user=system op=CHECKIN resource=herramientas details=movimiento_id=2 herramienta_id=1 estado_retorno=operativa cantidad_devuelta=1 ip=None
+2026-03-10 12:48:57,324 - audit - INFO - [SUCCESS] user=system op=CHECKIN resource=herramientas details=movimiento_id=3 herramienta_id=1 estado_retorno=operativa cantidad_devuelta=1 ip=None
+2026-03-10 12:49:19,006 - audit - INFO - [SUCCESS] user=system op=CREATE resource=herramientas details=herramienta_id=1 sku=HERR-CHECKIN-001 nombre=Herramienta para Checkin ip=None
+2026-03-10 12:49:19,019 - audit - INFO - [SUCCESS] user=system op=CHECKOUT resource=herramientas details=movimientos=[1] empleado=Empleado Checkin Test empleado_id=1 cantidad_items=1 ip=None
+2026-03-10 12:49:19,047 - audit - INFO - [SUCCESS] user=system op=CHECKIN resource=herramientas details=movimiento_id=1 herramienta_id=1 estado_retorno=operativa cantidad_devuelta=2 ip=None
+2026-03-10 12:49:19,068 - audit - INFO - [SUCCESS] user=system op=CHECKOUT resource=herramientas details=movimientos=[2] empleado=Empleado Checkin Test empleado_id=1 cantidad_items=1 ip=None
+2026-03-10 12:49:19,092 - audit - INFO - [SUCCESS] user=system op=CHECKIN resource=herramientas details=movimiento_id=2 herramienta_id=1 estado_retorno=operativa cantidad_devuelta=1 ip=None
+2026-03-10 12:49:19,119 - audit - INFO - [SUCCESS] user=system op=CHECKIN resource=herramientas details=movimiento_id=3 herramienta_id=1 estado_retorno=operativa cantidad_devuelta=1 ip=None
+2026-03-11 10:14:57,686 - audit - INFO - [SUCCESS] user=system op=CREATE resource=herramientas details=herramienta_id=1 sku=HERR-TEST-001 nombre=Taladro Test ip=None
+2026-03-11 10:14:58,430 - audit - INFO - [SUCCESS] user=system op=CREATE resource=herramientas details=herramienta_id=1 sku=HERR-SEARCH-001 nombre=Martillo de Búsqueda ip=None
+2026-03-11 10:14:58,614 - audit - INFO - [SUCCESS] user=system op=CREATE resource=herramientas details=herramienta_id=1 sku=HERR-CHECKOUT-001 nombre=Herramienta para Checkout ip=None
+2026-03-11 10:14:58,655 - audit - INFO - [SUCCESS] user=system op=CHECKOUT resource=herramientas details=movimientos=[1] empleado=Empleado Checkout Test empleado_id=1 cantidad_items=1 ip=None
+2026-03-11 10:14:58,798 - audit - INFO - [SUCCESS] user=system op=CREATE resource=herramientas details=herramienta_id=1 sku=HERR-GRUPO-001 nombre=Llave Grupo 1 ip=None
+2026-03-11 10:14:58,826 - audit - INFO - [SUCCESS] user=system op=CREATE resource=herramientas details=herramienta_id=2 sku=HERR-GRUPO-002 nombre=Llave Grupo 2 ip=None
+2026-03-11 10:14:58,849 - audit - INFO - [SUCCESS] user=system op=CHECKOUT resource=herramientas details=movimientos=[1, 2] empleado=Usuario Agrupado empleado_id=1 cantidad_items=2 ip=None
+2026-03-11 10:14:58,959 - audit - INFO - [SUCCESS] user=system op=CREATE resource=herramientas details=herramienta_id=1 sku=HERR-CARGO-001 nombre=Herramienta Cargo ip=None
+2026-03-11 10:14:58,982 - audit - INFO - [SUCCESS] user=system op=CHECKOUT resource=herramientas details=movimientos=[1] empleado=Usuario Cargo empleado_id=1 cantidad_items=1 ip=None
+2026-03-11 10:14:59,096 - audit - INFO - [SUCCESS] user=system op=CREATE resource=herramientas details=herramienta_id=1 sku=HERR-VAL-001 nombre=Herramienta Stock Limitado ip=None
+2026-03-11 10:14:59,281 - audit - INFO - [SUCCESS] user=system op=CREATE resource=herramientas details=herramienta_id=1 sku=HERR-CHECKIN-001 nombre=Herramienta para Checkin ip=None
+2026-03-11 10:14:59,311 - audit - INFO - [SUCCESS] user=system op=CHECKOUT resource=herramientas details=movimientos=[1] empleado=Empleado Checkin Test empleado_id=1 cantidad_items=1 ip=None
+2026-03-11 10:14:59,345 - audit - INFO - [SUCCESS] user=system op=CHECKIN resource=herramientas details=movimiento_id=1 herramienta_id=1 estado_retorno=operativa cantidad_devuelta=2 ip=None
+2026-03-11 10:14:59,377 - audit - INFO - [SUCCESS] user=system op=CHECKOUT resource=herramientas details=movimientos=[2] empleado=Empleado Checkin Test empleado_id=1 cantidad_items=1 ip=None
+2026-03-11 10:14:59,411 - audit - INFO - [SUCCESS] user=system op=CHECKIN resource=herramientas details=movimiento_id=2 herramienta_id=1 estado_retorno=operativa cantidad_devuelta=1 ip=None
+2026-03-11 10:14:59,445 - audit - INFO - [SUCCESS] user=system op=CHECKIN resource=herramientas details=movimiento_id=3 herramienta_id=1 estado_retorno=operativa cantidad_devuelta=1 ip=None
+2026-03-11 10:14:59,530 - audit - INFO - [SUCCESS] user=system op=CREATE resource=herramientas details=herramienta_id=1 sku=HERR-MANT-001 nombre=Herramienta para Mantenimiento ip=None
+2026-03-11 10:14:59,634 - audit - INFO - [SUCCESS] user=system op=CREATE resource=herramientas details=herramienta_id=1 sku=HERR-PLAN-001 nombre=Herramienta con Plan ip=None
+2026-03-11 10:15:00,031 - audit - INFO - [SUCCESS] user=system op=CREATE resource=herramientas details=herramienta_id=1 sku=HERR-KARDEX-001 nombre=Herramienta para Kardex ip=None
+2026-03-12 12:50:36,667 - audit - INFO - [SUCCESS] user=system op=UPDATE resource=herramientas details=herramienta_id=35 sku=HERR-035 nombre=Alicate Corte Diagonal 6" ip=None
+2026-03-12 13:48:31,986 - audit - INFO - [SUCCESS] user=system op=DELETE resource=herramientas details=herramienta_id=35 nombre=Alicate Corte Diagonal 6" ip=None
+2026-03-12 13:48:36,349 - audit - INFO - [SUCCESS] user=system op=DELETE resource=herramientas details=herramienta_id=34 nombre=Alicate Universal 8" ip=None
